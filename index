@@ -7,1028 +7,955 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        :root {
-            --bg: #FFF8F0;
-            --fg: #4A3728;
-            --muted: #9B8B7A;
-            --accent: #FF6B6B;
-            --accent2: #4ECDC4;
-            --card: #FFFFFF;
-            --border: #E8DDD0;
-            --bank-bg: #E8F4FD;
-            --bank-border: #A8CCE8;
-            --sentence-bg: #FFF9E6;
-            --sentence-border: #E8D080;
-            --success: #6BCB77;
-            --error: #FF6B6B;
+        :root{--bg:#FFF8F0;--fg:#4A3728;--muted:#9B8B7A;--accent:#FF6B6B;--accent2:#4ECDC4;--card:#FFF;--border:#E8DDD0;--bank-bg:#E8F4FD;--bank-bd:#A8CCE8;--sent-bg:#FFF9E6;--sent-bd:#E8D080;--success:#6BCB77;--error:#FF6B6B;--p1:#FF9AA2;--p1dark:#C62828;--p2:#80DEEA;--p2dark:#00695C}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Nunito',sans-serif;background:var(--bg);background-image:radial-gradient(circle,#E8DDD0 1px,transparent 1px);background-size:28px 28px;color:var(--fg);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;display:flex;flex-direction:column}
+        .bg-blob{position:fixed;border-radius:50%;pointer-events:none;z-index:0;opacity:.07;filter:blur(2px)}
+        .bg-blob-1{width:320px;height:320px;background:#FF9AA2;top:-100px;right:-80px;animation:bd 22s ease-in-out infinite}
+        .bg-blob-2{width:240px;height:240px;background:#BAE1FF;bottom:-60px;left:-50px;animation:bd 17s ease-in-out infinite reverse}
+        .bg-blob-3{width:180px;height:180px;background:#BAFFC9;top:45%;right:-40px;animation:bd 19s ease-in-out infinite 4s}
+        @keyframes bd{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(25px,-35px) scale(1.06)}66%{transform:translate(-18px,25px) scale(.94)}}
+        .confetti-layer{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;overflow:hidden}
+        .confetti-bit{position:absolute;animation:cfall var(--dur,1.6s) ease-out var(--delay,0s) forwards;opacity:0}
+        @keyframes cfall{0%{transform:translateY(0) rotate(0) scale(1);opacity:1}30%{opacity:1}100%{transform:translateY(calc(100vh + 40px)) translateX(var(--dx,0)) rotate(var(--spin,600deg)) scale(.4);opacity:0}}
+        .game-container{max-width:960px;margin:0 auto;padding:16px;position:relative;z-index:1;flex:1}
+        .screen{display:none}.screen.active{display:block}
+        .mode-select{text-align:center;padding:40px 20px 10px}
+        .mode-title{font-family:'Fredoka One',cursive;font-size:44px;background:linear-gradient(135deg,#FF6B6B,#FFB74D);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
+        .mode-sub{color:var(--muted);font-size:17px;font-weight:600;margin-bottom:36px}
+        .mode-cards{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:40px}
+        .mode-card{width:270px;padding:38px 26px 30px;border-radius:24px;border:3px solid transparent;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;box-shadow:0 6px 24px rgba(0,0,0,.08);transition:all .25s;font-family:'Nunito',sans-serif}
+        .mode-card:hover{transform:translateY(-5px);box-shadow:0 12px 32px rgba(0,0,0,.13)}
+        .mode-card:active{transform:translateY(-1px)}
+        .mode-card i.icon{font-size:46px;margin-bottom:4px}
+        .mode-name{font-family:'Fredoka One',cursive;font-size:22px}
+        .mode-desc{font-size:14px;font-weight:600;opacity:.8}
+        .mode-solo{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-color:#A5D6A7;color:#2E7D32}
+        .mode-solo i.icon{color:#43A047}
+        .mode-race{background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-color:#FFCC80;color:#E65100}
+        .mode-race i.icon{color:#FB8C00}
+        .material-card{background:linear-gradient(135deg,#F1F8E9,#DCEDC8);border:3px solid #AED581;border-radius:22px;padding:26px 24px 22px;box-shadow:0 6px 24px rgba(139,195,74,.12);text-align:left;margin-bottom:36px;position:relative;overflow:hidden;max-width:780px;margin-left:auto;margin-right:auto}
+        .material-card::before{content:'';position:absolute;top:-25px;right:-25px;width:90px;height:90px;background:rgba(255,255,255,.25);border-radius:50%}
+        .material-header{text-align:center;margin-bottom:18px;position:relative;z-index:1}
+        .material-badge{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#7CB342,#558B2F);color:#fff;font-family:'Fredoka One',cursive;font-size:14px;padding:6px 18px;border-radius:20px;letter-spacing:.4px;margin-bottom:10px}
+        .material-badge i{font-size:13px}
+        .material-title{font-family:'Fredoka One',cursive;font-size:22px;color:#33691E}
+        .material-desc{text-align:center;font-size:14px;color:#558B2F;font-weight:600;margin-bottom:18px;position:relative;z-index:1;line-height:1.5}
+        .formula-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;position:relative;z-index:1}
+        .formula-box{background:rgba(255,255,255,.7);border-radius:16px;padding:16px 14px;text-align:center;border:2px solid}
+        .formula-box.fb-aff{border-color:#A5D6A7}
+        .formula-box.fb-neg{border-color:#FFCC80}
+        .formula-box.fb-int{border-color:#90CAF9}
+        .formula-label{font-family:'Fredoka One',cursive;font-size:14px;margin-bottom:8px;display:inline-flex;align-items:center;gap:5px;padding:3px 12px;border-radius:8px}
+        .fb-aff .formula-label{background:#E8F5E9;color:#2E7D32}
+        .fb-neg .formula-label{background:#FFF3E0;color:#E65100}
+        .fb-int .formula-label{background:#E3F2FD;color:#1565C0}
+        .formula-rumus{font-size:14px;font-weight:800;color:var(--fg);margin-bottom:6px;line-height:1.4}
+        .formula-rumus sub{font-size:11px}
+        .formula-example{font-size:12px;color:var(--muted);font-weight:600;font-style:italic;line-height:1.4}
+        .material-note{text-align:center;font-size:12px;color:#689F38;font-weight:700;margin-top:14px;position:relative;z-index:1;background:rgba(255,255,255,.5);border-radius:10px;padding:8px 16px;display:inline-block}
+        .material-note i{margin-right:5px}
+        .dev-dashboard{margin-bottom:20px;background:linear-gradient(135deg,#F3E5F5,#E1BEE7);border:3px solid #CE93D8;border-radius:22px;padding:26px 24px 22px;box-shadow:0 6px 24px rgba(156,39,176,.12);text-align:center;position:relative;overflow:hidden;max-width:420px;margin-left:auto;margin-right:auto}
+        .dev-dashboard::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:rgba(255,255,255,.2);border-radius:50%}
+        .dev-dashboard::after{content:'';position:absolute;bottom:-20px;left:-20px;width:70px;height:70px;background:rgba(255,255,255,.15);border-radius:50%}
+        .dev-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#AB47BC,#8E24AA);color:#fff;font-family:'Fredoka One',cursive;font-size:14px;padding:6px 18px;border-radius:20px;margin-bottom:14px;position:relative;z-index:1;letter-spacing:.5px}
+        .dev-badge i{font-size:13px}
+        .dev-avatar{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,#CE93D8,#AB47BC);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 16px rgba(156,39,176,.3);position:relative;z-index:1}
+        .dev-avatar i{font-size:28px;color:#fff}
+        .dev-avatar-ring{position:absolute;inset:-4px;border-radius:50%;border:3px dashed rgba(255,255,255,.5);animation:ringRot 12s linear infinite}
+        @keyframes ringRot{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+        .dev-name{font-family:'Fredoka One',cursive;font-size:19px;color:#6A1B9A;margin-bottom:4px;position:relative;z-index:1}
+        .dev-divider{width:60px;height:3px;background:linear-gradient(90deg,transparent,#CE93D8,transparent);margin:10px auto;border-radius:2px;position:relative;z-index:1}
+        .dev-school{font-size:13px;color:#9C27B0;font-weight:700;position:relative;z-index:1}
+        .dev-school i{margin-right:5px;font-size:12px}
+        .dev-role{font-size:12px;color:#7B1FA2;font-weight:600;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px}
+        .global-footer{text-align:center;padding:14px 16px;font-size:12px;color:var(--muted);font-weight:600;position:relative;z-index:1;flex-shrink:0}
+        .global-footer span{color:#9C27B0;font-weight:700}
+        .global-footer i{margin-right:4px;color:#CE93D8}
+        .header{background:linear-gradient(135deg,#FF9AA2 0%,#FFB7B2 45%,#FFDAC1 100%);border-radius:22px;padding:18px 24px;margin-bottom:18px;box-shadow:0 6px 24px rgba(255,154,162,.3);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;position:relative;overflow:hidden}
+        .header::before{content:'';position:absolute;top:-35px;right:-35px;width:120px;height:120px;background:rgba(255,255,255,.15);border-radius:50%}
+        .title{font-family:'Fredoka One',cursive;font-size:24px;color:#fff;text-shadow:2px 2px 6px rgba(180,80,80,.15);display:flex;align-items:center;gap:8px;position:relative;z-index:1}
+        .star-icon{font-size:18px;animation:sp 3s ease-in-out infinite}
+        @keyframes sp{0%,100%{transform:rotate(0) scale(1)}50%{transform:rotate(12deg) scale(1.18)}}
+        .header-stats{display:flex;gap:10px;align-items:center;flex-wrap:wrap;position:relative;z-index:1}
+        .stat-badge{background:rgba(255,255,255,.3);backdrop-filter:blur(4px);border-radius:13px;padding:7px 15px;font-weight:700;font-size:14px;color:#fff;display:flex;align-items:center;gap:7px}
+        .stat-badge i{font-size:14px}
+        .score-value{color:#FFF176;font-size:18px}
+        .menu-btn{background:rgba(255,255,255,.3);border:none;color:#fff;width:36px;height:36px;border-radius:11px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+        .menu-btn:hover{background:rgba(255,255,255,.5)}
+        .tp-header .stat-badge.p1-b{border:2px solid rgba(255,255,255,.45)}
+        .tp-header .stat-badge.p2-b{border:2px solid rgba(255,255,255,.45)}
+        .type-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:10px;font-weight:700;font-size:13px;margin-bottom:6px}
+        .type-tag i{font-size:12px}
+        .type-tag.t-aff{background:#E8F5E9;color:#2E7D32;border:1.5px solid #A5D6A7}
+        .type-tag.t-neg{background:#FFF3E0;color:#E65100;border:1.5px solid #FFCC80}
+        .type-tag.t-int{background:#E3F2FD;color:#1565C0;border:1.5px solid #90CAF9}
+        .section-label{font-family:'Fredoka One',cursive;font-size:15px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:7px}
+        .section-label i{font-size:13px}
+        .word-bank{position:relative;height:210px;background:linear-gradient(180deg,#EAF5FD,#D6EDF9);border:3px dashed var(--bank-bd);border-radius:20px;overflow:hidden;margin-bottom:4px;box-shadow:inset 0 3px 12px rgba(0,0,0,.04)}
+        .bank-empty-msg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-weight:700;color:var(--bank-bd);font-size:14px;pointer-events:none;display:none;align-items:center;gap:7px}
+        .bank-empty-msg.visible{display:flex}
+        .word-card{position:absolute;display:inline-flex;align-items:center;justify-content:center;padding:9px 20px;border-radius:14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;cursor:grab;user-select:none;-webkit-user-select:none;box-shadow:0 3px 10px rgba(0,0,0,.1);border:2.5px solid;white-space:nowrap;transition:transform .15s,box-shadow .15s;z-index:1;touch-action:none;will-change:left,top}
+        .word-card.punct{font-size:22px;padding:9px 14px}
+        .word-card:hover{transform:scale(1.06);box-shadow:0 5px 18px rgba(0,0,0,.15)}
+        .word-card.dragging{cursor:grabbing;transform:scale(1.1)!important;box-shadow:0 10px 35px rgba(0,0,0,.25)!important;z-index:10000!important;transition:none!important}
+        .word-card.placed{position:relative!important;left:auto!important;top:auto!important}
+        .word-card.placed:hover{transform:scale(1.05)}
+        .word-card.placed .return-x{display:none;position:absolute;top:-9px;right:-9px;width:22px;height:22px;background:var(--error);color:#fff;border-radius:50%;font-size:11px;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(255,107,107,.4);cursor:pointer;border:2px solid #fff}
+        .word-card.placed:hover .return-x{display:flex}
+        .hint-text{text-align:center;font-size:12px;color:var(--muted);margin:4px 0 8px;font-weight:600}
+        .hint-text i{margin-right:4px}
+        .sentence-area{min-height:74px;background:repeating-linear-gradient(transparent,transparent 35px,rgba(224,200,128,.18) 35px,rgba(224,200,128,.18) 36px),linear-gradient(180deg,#FFFAE6,#FFF3CC);border:3px dashed var(--sent-bd);border-radius:20px;padding:18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:inset 0 3px 12px rgba(0,0,0,.04);transition:border-color .25s,background .25s,box-shadow .25s;position:relative}
+        .sentence-area.drag-hover{border-color:var(--accent2);background:repeating-linear-gradient(transparent,transparent 35px,rgba(78,205,196,.1) 35px,rgba(78,205,196,.1) 36px),linear-gradient(180deg,#E6FFF9,#D4FFF0);box-shadow:inset 0 3px 12px rgba(78,205,196,.1),0 0 25px rgba(78,205,196,.12)}
+        .sentence-area.result-correct{border-color:var(--success)!important;border-style:solid!important;box-shadow:0 0 25px rgba(107,203,119,.25),inset 0 3px 12px rgba(107,203,119,.08)!important}
+        .sentence-area.result-wrong{animation:ashake .5s ease;border-color:var(--error)!important}
+        @keyframes ashake{0%,100%{transform:translateX(0)}15%{transform:translateX(-7px)}30%{transform:translateX(7px)}50%{transform:translateX(-5px)}70%{transform:translateX(5px)}85%{transform:translateX(-2px)}}
+        .sentence-placeholder{color:var(--sent-bd);font-weight:600;font-size:14px;pointer-events:none;display:flex;align-items:center;gap:7px}
+        .insert-bar{width:4px;height:40px;background:var(--accent2);border-radius:3px;animation:ibp .7s ease-in-out infinite;flex-shrink:0}
+        @keyframes ibp{0%,100%{opacity:.4;transform:scaleY(.75)}50%{opacity:1;transform:scaleY(1)}}
+        .controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+        .btn{font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;padding:11px 24px;border:none;border-radius:14px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .2s;box-shadow:0 4px 14px rgba(0,0,0,.1);outline:none}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 7px 20px rgba(0,0,0,.14)}
+        .btn:active{transform:translateY(0);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+        .btn:focus-visible{box-shadow:0 0 0 3px rgba(78,205,196,.5),0 4px 14px rgba(0,0,0,.1)}
+        .btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:0 2px 8px rgba(0,0,0,.08)!important}
+        .btn-check{background:linear-gradient(135deg,#6BCB77,#4CAF50);color:#fff}
+        .btn-reset{background:linear-gradient(135deg,#FFB74D,#FFA726);color:#fff}
+        .btn-next{background:linear-gradient(135deg,#64B5F6,#42A5F5);color:#fff}
+        .btn-again{background:linear-gradient(135deg,#FF9AA2,#FF6B6B);color:#fff;font-size:16px;padding:13px 32px}
+        .btn-menu{background:linear-gradient(135deg,#B0BEC5,#90A4AE);color:#fff;font-size:15px;padding:11px 24px}
+        .feedback-zone{text-align:center;min-height:48px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px}
+        .fb-msg{padding:12px 22px;border-radius:14px;font-weight:700;font-size:15px;display:inline-flex;align-items:center;gap:9px;animation:fbin .35s ease-out;box-shadow:0 4px 16px rgba(0,0,0,.07)}
+        @keyframes fbin{0%{transform:translateY(12px) scale(.94);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
+        .fb-correct{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);color:#2E7D32;border:2px solid #A5D6A7}
+        .fb-wrong{background:linear-gradient(135deg,#FFEBEE,#FFCDD2);color:#C62828;border:2px solid #EF9A9A}
+        .fb-hint{font-size:13px;color:var(--muted);font-weight:600;animation:fbin .4s ease-out .1s both}
+        .fb-hint span{color:var(--fg);font-weight:800}
+        .players-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:start;margin-bottom:14px}
+        .player-panel{position:relative;border-radius:22px;border:3px solid var(--border);padding:14px;background:var(--card);box-shadow:0 4px 16px rgba(0,0,0,.06);transition:box-shadow .4s,border-color .4s}
+        .player-panel.winner{border-color:#FFD700;box-shadow:0 0 35px rgba(255,215,0,.35),0 4px 16px rgba(0,0,0,.06)}
+        .player-panel.locked{opacity:.85}
+        .player-label{font-family:'Fredoka One',cursive;font-size:17px;padding:6px 16px;border-radius:12px;display:inline-flex;align-items:center;gap:7px;margin-bottom:8px;color:#fff}
+        .p1-label{background:linear-gradient(135deg,var(--p1),#FFB7B2)}
+        .p2-label{background:linear-gradient(135deg,var(--p2),#4DD0E1)}
+        .vs-divider{display:flex;align-items:center;justify-content:center;padding:0 10px;font-family:'Fredoka One',cursive;font-size:26px;color:var(--muted);min-width:50px}
+        .vs-divider span{background:var(--bg);border:3px solid var(--border);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px}
+        .tp-bank{height:175px}
+        .tp-sentence{min-height:62px;padding:14px;gap:8px;margin-bottom:10px}
+        .player-check-wrap{text-align:center;margin-bottom:6px}
+        .player-feedback{text-align:center;min-height:40px}
+        .lock-overlay{display:none;position:absolute;inset:0;background:rgba(255,255,255,.65);border-radius:20px;z-index:50;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:16px;color:var(--muted);gap:8px;pointer-events:none;flex-direction:column}
+        .lock-overlay.show{display:flex;pointer-events:auto}
+        .lock-overlay i{font-size:28px;margin-bottom:4px}
+        .round-banner{text-align:center;padding:12px 20px;border-radius:14px;font-family:'Fredoka One',cursive;font-size:20px;display:none;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;animation:rbdrop .5s ease-out}
+        .round-banner.show{display:flex}
+        .round-banner.p1-win{background:linear-gradient(135deg,#FFE0E0,#FFB3BA);color:var(--p1dark);border:2px solid var(--p1)}
+        .round-banner.p2-win{background:linear-gradient(135deg,#D4F5F0,#B2EBF2);color:var(--p2dark);border:2px solid var(--p2)}
+        .round-banner i{font-size:22px}
+        @keyframes rbdrop{0%{transform:translateY(-20px);opacity:0}100%{transform:translateY(0);opacity:1}}
+        .tp-controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+        .end-screen{text-align:center;padding:50px 20px;animation:fbin .5s ease-out}
+        .end-title{font-family:'Fredoka One',cursive;font-size:36px;margin-bottom:8px}
+        .end-title.grad{background:linear-gradient(135deg,#FF6B6B,#FFB74D);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .end-score{font-size:20px;font-weight:700;margin-bottom:8px;line-height:1.6}
+        .end-score .big{font-size:32px;color:var(--accent)}
+        .end-msg{font-size:15px;color:var(--muted);margin-bottom:28px;font-weight:600}
+        .end-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+        .champ-crown{font-size:60px;color:#FFD700;animation:sp 2s ease-in-out infinite;margin-bottom:10px;display:block}
+        .champ-scores{display:flex;align-items:center;justify-content:center;gap:18px;margin:24px 0}
+        .champ-card{width:140px;padding:22px 16px;border-radius:20px;background:var(--card);border:3px solid var(--border);box-shadow:0 4px 16px rgba(0,0,0,.08);transition:all .4s}
+        .champ-card.winner-card{border-color:#FFD700;box-shadow:0 0 30px rgba(255,215,0,.3);transform:scale(1.08)}
+        .champ-label{font-weight:700;font-size:15px;margin-bottom:6px}
+        .champ-num{font-family:'Fredoka One',cursive;font-size:40px}
+        .champ-vs{font-family:'Fredoka One',cursive;font-size:22px;color:var(--muted)}
+        .champ-card.p1-card .champ-num{color:var(--p1dark)}
+        .champ-card.p2-card .champ-num{color:var(--p2dark)}
+        @media(max-width:900px){
+            .players-grid{grid-template-columns:1fr;gap:14px}
+            .vs-divider{padding:4px 0}
+            .vs-divider span{width:40px;height:40px;font-size:13px}
+            .player-panel{max-width:520px;margin:0 auto}
+            .tp-bank{height:200px}
+            .formula-grid{grid-template-columns:1fr}
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Nunito', sans-serif;
-            background-color: var(--bg);
-            background-image: radial-gradient(circle, #E8DDD0 1px, transparent 1px);
-            background-size: 28px 28px;
-            color: var(--fg);
-            min-height: 100vh;
-            overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
+        @media(max-width:768px){
+            .game-container{padding:12px}
+            .header{padding:14px 18px;border-radius:18px}
+            .title{font-size:20px}
+            .stat-badge{padding:5px 11px;font-size:12px}
+            .word-bank{height:190px}
+            .word-card{padding:8px 16px;font-size:14px;border-radius:12px}
+            .word-card.punct{font-size:18px;padding:8px 12px}
+            .sentence-area{padding:14px;gap:8px;min-height:66px}
+            .btn{padding:9px 18px;font-size:13px;border-radius:12px}
+            .mode-title{font-size:32px}
+            .mode-card{width:240px;padding:28px 20px 24px}
+            .mode-card i.icon{font-size:36px}
+            .mode-name{font-size:19px}
+            .dev-dashboard{padding:22px 18px 20px}
+            .dev-name{font-size:18px}
+            .material-card{padding:20px 16px 18px}
+            .material-title{font-size:19px}
         }
-
-        /* Decorative background blobs */
-        .bg-blob {
-            position: fixed;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.07;
-            filter: blur(2px);
+        @media(max-width:480px){
+            .title{font-size:17px;gap:5px}
+            .star-icon{font-size:14px}
+            .word-bank{height:165px}
+            .word-card{padding:7px 12px;font-size:13px;border-radius:10px}
+            .word-card.punct{font-size:16px;padding:7px 10px}
+            .header-stats{gap:6px}
+            .stat-badge{padding:4px 8px;font-size:11px;gap:4px}
+            .score-value{font-size:15px}
+            .controls,.tp-controls{gap:7px}
+            .btn{padding:8px 14px;font-size:12px;gap:4px}
+            .sentence-area{padding:12px 10px;gap:7px}
+            .mode-title{font-size:26px}
+            .mode-cards{gap:14px}
+            .mode-card{width:100%;max-width:280px}
+            .champ-crown{font-size:48px}
+            .champ-card{width:110px;padding:16px 10px}
+            .champ-num{font-size:32px}
+            .end-title{font-size:28px}
+            .dev-dashboard{padding:18px 14px 16px}
+            .dev-avatar{width:56px;height:56px}
+            .dev-avatar i{font-size:22px}
+            .dev-name{font-size:16px}
+            .dev-badge{font-size:12px;padding:5px 14px}
+            .material-card{padding:16px 12px 14px}
+            .material-title{font-size:16px}
+            .material-desc{font-size:12px}
+            .formula-rumus{font-size:12px}
+            .formula-example{font-size:11px}
+            .material-note{font-size:11px}
+            .type-tag{font-size:11px;padding:4px 10px}
+            .formula-label{font-size:12px;padding:2px 10px}
         }
-        .bg-blob-1 { width: 320px; height: 320px; background: #FF9AA2; top: -100px; right: -80px; animation: blobDrift 22s ease-in-out infinite; }
-        .bg-blob-2 { width: 240px; height: 240px; background: #BAE1FF; bottom: -60px; left: -50px; animation: blobDrift 17s ease-in-out infinite reverse; }
-        .bg-blob-3 { width: 180px; height: 180px; background: #BAFFC9; top: 45%; right: -40px; animation: blobDrift 19s ease-in-out infinite 4s; }
-        .bg-blob-4 { width: 140px; height: 140px; background: #FFFFBA; top: 20%; left: -30px; animation: blobDrift 15s ease-in-out infinite 2s; }
-
-        @keyframes blobDrift {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(25px, -35px) scale(1.06); }
-            66% { transform: translate(-18px, 25px) scale(0.94); }
-        }
-
-        /* Main container */
-        .game-container {
-            max-width: 920px;
-            margin: 0 auto;
-            padding: 20px;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Header banner */
-        .header {
-            background: linear-gradient(135deg, #FF9AA2 0%, #FFB7B2 45%, #FFDAC1 100%);
-            border-radius: 24px;
-            padding: 22px 30px;
-            margin-bottom: 22px;
-            box-shadow: 0 6px 24px rgba(255, 154, 162, 0.3);
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-            position: relative;
-            overflow: hidden;
-        }
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -35px; right: -35px;
-            width: 130px; height: 130px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 50%;
-        }
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -25px; left: 28%;
-            width: 90px; height: 90px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-        }
-
-        .title {
-            font-family: 'Fredoka One', cursive;
-            font-size: 28px;
-            color: #fff;
-            text-shadow: 2px 2px 6px rgba(180,80,80,0.15);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            position: relative;
-            z-index: 1;
-        }
-        .title .star-icon { font-size: 22px; animation: starPulse 3s ease-in-out infinite; }
-        @keyframes starPulse {
-            0%, 100% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(12deg) scale(1.18); }
-        }
-
-        .header-stats {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-            position: relative;
-            z-index: 1;
-        }
-        .stat-badge {
-            background: rgba(255,255,255,0.3);
-            backdrop-filter: blur(4px);
-            border-radius: 14px;
-            padding: 8px 18px;
-            font-weight: 700;
-            font-size: 15px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .stat-badge i { font-size: 15px; }
-        .score-value { color: #FFF176; font-size: 19px; }
-
-        /* Section labels */
-        .section-label {
-            font-family: 'Fredoka One', cursive;
-            font-size: 17px;
-            color: var(--muted);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .section-label i { font-size: 15px; }
-
-        /* Word Bank */
-        .word-bank {
-            position: relative;
-            height: 220px;
-            background: linear-gradient(180deg, #EAF5FD 0%, #D6EDF9 100%);
-            border: 3px dashed var(--bank-border);
-            border-radius: 22px;
-            overflow: hidden;
-            margin-bottom: 6px;
-            box-shadow: inset 0 3px 12px rgba(0,0,0,0.04);
-        }
-        .bank-empty-msg {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-weight: 700;
-            color: var(--bank-border);
-            font-size: 15px;
-            pointer-events: none;
-            display: none;
-            align-items: center;
-            gap: 8px;
-        }
-        .bank-empty-msg.visible { display: flex; }
-
-        /* Word cards */
-        .word-card {
-            position: absolute;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 22px;
-            border-radius: 16px;
-            font-family: 'Nunito', sans-serif;
-            font-weight: 800;
-            font-size: 17px;
-            cursor: grab;
-            user-select: none;
-            -webkit-user-select: none;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            border: 2.5px solid;
-            white-space: nowrap;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-            z-index: 1;
-            touch-action: none;
-            will-change: left, top;
-        }
-        .word-card:hover {
-            transform: scale(1.06);
-            box-shadow: 0 5px 18px rgba(0,0,0,0.15);
-        }
-        .word-card.dragging {
-            cursor: grabbing;
-            transform: scale(1.1) !important;
-            box-shadow: 0 10px 35px rgba(0,0,0,0.25) !important;
-            z-index: 10000 !important;
-            transition: none !important;
-        }
-
-        /* Word card in sentence area */
-        .word-card.placed {
-            position: relative !important;
-            left: auto !important;
-            top: auto !important;
-        }
-        .word-card.placed:hover {
-            transform: scale(1.05);
-        }
-        .word-card.placed .return-x {
-            display: none;
-            position: absolute;
-            top: -9px; right: -9px;
-            width: 22px; height: 22px;
-            background: var(--error);
-            color: #fff;
-            border-radius: 50%;
-            font-size: 11px;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(255,107,107,0.4);
-            cursor: pointer;
-            border: 2px solid #fff;
-        }
-        .word-card.placed:hover .return-x { display: flex; }
-
-        /* Hint text */
-        .hint-text {
-            text-align: center;
-            font-size: 13px;
-            color: var(--muted);
-            margin: 6px 0 10px;
-            font-weight: 600;
-        }
-        .hint-text i { margin-right: 5px; }
-
-        /* Sentence drop zone */
-        .sentence-area {
-            min-height: 80px;
-            background:
-                repeating-linear-gradient(
-                    transparent, transparent 35px,
-                    rgba(224,200,128,0.18) 35px, rgba(224,200,128,0.18) 36px
-                ),
-                linear-gradient(180deg, #FFFAE6 0%, #FFF3CC 100%);
-            border: 3px dashed var(--sentence-border);
-            border-radius: 22px;
-            padding: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 22px;
-            box-shadow: inset 0 3px 12px rgba(0,0,0,0.04);
-            transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
-            position: relative;
-        }
-        .sentence-area.drag-hover {
-            border-color: var(--accent2);
-            background:
-                repeating-linear-gradient(
-                    transparent, transparent 35px,
-                    rgba(78,205,196,0.1) 35px, rgba(78,205,196,0.1) 36px
-                ),
-                linear-gradient(180deg, #E6FFF9 0%, #D4FFF0 100%);
-            box-shadow: inset 0 3px 12px rgba(78,205,196,0.1), 0 0 25px rgba(78,205,196,0.12);
-        }
-        .sentence-area.result-correct {
-            border-color: var(--success) !important;
-            border-style: solid !important;
-            box-shadow: 0 0 25px rgba(107,203,119,0.25), inset 0 3px 12px rgba(107,203,119,0.08) !important;
-        }
-        .sentence-area.result-wrong {
-            animation: areaShake 0.5s ease;
-            border-color: var(--error) !important;
-        }
-        @keyframes areaShake {
-            0%, 100% { transform: translateX(0); }
-            15% { transform: translateX(-7px); }
-            30% { transform: translateX(7px); }
-            50% { transform: translateX(-5px); }
-            70% { transform: translateX(5px); }
-            85% { transform: translateX(-2px); }
-        }
-
-        .sentence-placeholder {
-            color: var(--sentence-border);
-            font-weight: 600;
-            font-size: 15px;
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Insert indicator for reordering */
-        .insert-bar {
-            width: 4px;
-            height: 42px;
-            background: var(--accent2);
-            border-radius: 3px;
-            animation: barPulse 0.7s ease-in-out infinite;
-            flex-shrink: 0;
-        }
-        @keyframes barPulse {
-            0%, 100% { opacity: 0.4; transform: scaleY(0.75); }
-            50% { opacity: 1; transform: scaleY(1); }
-        }
-
-        /* Buttons */
-        .controls {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 18px;
-        }
-        .btn {
-            font-family: 'Nunito', sans-serif;
-            font-weight: 800;
-            font-size: 16px;
-            padding: 12px 28px;
-            border: none;
-            border-radius: 16px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-            outline: none;
-        }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(0,0,0,0.14); }
-        .btn:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .btn:focus-visible { box-shadow: 0 0 0 3px rgba(78,205,196,0.5), 0 4px 14px rgba(0,0,0,0.1); }
-        .btn-check { background: linear-gradient(135deg, #6BCB77, #4CAF50); color: #fff; }
-        .btn-reset { background: linear-gradient(135deg, #FFB74D, #FFA726); color: #fff; }
-        .btn-next  { background: linear-gradient(135deg, #64B5F6, #42A5F5); color: #fff; }
-
-        /* Feedback */
-        .feedback-zone {
-            text-align: center;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .fb-msg {
-            padding: 14px 26px;
-            border-radius: 16px;
-            font-weight: 700;
-            font-size: 16px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            animation: fbSlideIn 0.35s ease-out;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
-        }
-        @keyframes fbSlideIn {
-            0% { transform: translateY(12px) scale(0.94); opacity: 0; }
-            100% { transform: translateY(0) scale(1); opacity: 1; }
-        }
-        .fb-correct {
-            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
-            color: #2E7D32;
-            border: 2px solid #A5D6A7;
-        }
-        .fb-wrong {
-            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
-            color: #C62828;
-            border: 2px solid #EF9A9A;
-        }
-        .fb-hint {
-            font-size: 14px;
-            color: var(--muted);
-            font-weight: 600;
-            animation: fbSlideIn 0.4s ease-out 0.1s both;
-        }
-        .fb-hint span { color: var(--fg); font-weight: 800; }
-
-        /* Confetti */
-        .confetti-layer {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 9999;
-            overflow: hidden;
-        }
-        .confetti-bit {
-            position: absolute;
-            animation: confettiDrop var(--dur, 1.6s) ease-out var(--delay, 0s) forwards;
-            opacity: 0;
-        }
-        @keyframes confettiDrop {
-            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
-            30% { opacity: 1; }
-            100% { transform: translateY(calc(100vh + 40px)) translateX(var(--dx, 0px)) rotate(var(--spin, 600deg)) scale(0.4); opacity: 0; }
-        }
-
-        /* Game over overlay */
-        .game-over-panel {
-            display: none;
-            text-align: center;
-            padding: 50px 24px;
-            animation: fbSlideIn 0.5s ease-out;
-        }
-        .game-over-panel.show { display: block; }
-        .go-title {
-            font-family: 'Fredoka One', cursive;
-            font-size: 38px;
-            background: linear-gradient(135deg, #FF6B6B, #FFB74D);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 18px;
-        }
-        .go-score { font-size: 22px; font-weight: 700; margin-bottom: 10px; line-height: 1.5; }
-        .go-score .big { font-size: 34px; color: var(--accent); }
-        .go-msg { font-size: 16px; color: var(--muted); margin-bottom: 28px; font-weight: 600; }
-        .btn-again { background: linear-gradient(135deg, #FF9AA2, #FF6B6B); color: #fff; font-size: 17px; padding: 14px 36px; }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .game-container { padding: 14px; }
-            .header { padding: 16px 20px; border-radius: 18px; }
-            .title { font-size: 22px; }
-            .stat-badge { padding: 6px 13px; font-size: 13px; }
-            .word-bank { height: 190px; }
-            .word-card { padding: 8px 16px; font-size: 15px; border-radius: 13px; }
-            .sentence-area { padding: 16px; gap: 10px; min-height: 72px; }
-            .btn { padding: 10px 22px; font-size: 14px; border-radius: 13px; }
-            .go-title { font-size: 30px; }
-        }
-        @media (max-width: 480px) {
-            .title { font-size: 18px; gap: 6px; }
-            .title .star-icon { font-size: 16px; }
-            .word-bank { height: 165px; }
-            .word-card { padding: 7px 13px; font-size: 14px; border-radius: 11px; }
-            .header-stats { gap: 8px; }
-            .stat-badge { padding: 5px 10px; font-size: 12px; gap: 5px; }
-            .score-value { font-size: 16px; }
-            .controls { gap: 8px; }
-            .btn { padding: 9px 16px; font-size: 13px; gap: 5px; }
-            .sentence-area { padding: 14px 12px; gap: 8px; }
-            .go-title { font-size: 26px; }
-            .go-score { font-size: 18px; }
-            .go-score .big { font-size: 28px; }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
+        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
     </style>
 </head>
 <body>
-    <!-- Background decorative blobs -->
     <div class="bg-blob bg-blob-1"></div>
     <div class="bg-blob bg-blob-2"></div>
     <div class="bg-blob bg-blob-3"></div>
-    <div class="bg-blob bg-blob-4"></div>
-
-    <!-- Confetti layer -->
     <div class="confetti-layer" id="confettiLayer"></div>
 
     <div class="game-container">
-        <!-- Header -->
-        <header class="header" role="banner">
-            <div class="title">
-                <i class="fas fa-star star-icon"></i>
-                Arrange the Sentence
-                <i class="fas fa-star star-icon"></i>
-            </div>
-            <div class="header-stats">
-                <div class="stat-badge" aria-label="Question number">
-                    <i class="fas fa-book-open"></i>
-                    <span id="qCounter">1 / 20</span>
+        <div id="modeSelect" class="screen active">
+            <div class="mode-select">
+                <div class="mode-title">Arrange the Sentence</div>
+                <p class="mode-sub">Choose your game mode</p>
+                <div class="mode-cards">
+                    <button class="mode-card mode-solo" id="btnSolo" aria-label="Solo player mode">
+                        <i class="fas fa-user-graduate icon"></i>
+                        <span class="mode-name">Solo Player</span>
+                        <span class="mode-desc">Practice at your own pace</span>
+                    </button>
+                    <button class="mode-card mode-race" id="btnRace" aria-label="Two player race mode">
+                        <i class="fas fa-bolt icon"></i>
+                        <span class="mode-name">2 Player Race</span>
+                        <span class="mode-desc">Compete with a friend!</span>
+                    </button>
                 </div>
-                <div class="stat-badge" aria-label="Score">
-                    <i class="fas fa-trophy"></i>
-                    Score: <span class="score-value" id="scoreEl">0</span>
-                </div>
-            </div>
-        </header>
 
-        <!-- Active game area -->
-        <main id="gameArea">
+                <div class="material-card">
+                    <div class="material-header">
+                        <div class="material-badge"><i class="fas fa-book-open"></i> Material Description</div>
+                        <div class="material-title">Simple Present Tense</div>
+                    </div>
+                    <div class="material-desc">Used to express habits, general facts, and universal truths that happen regularly or are always true.</div>
+                    <div class="formula-grid">
+                        <div class="formula-box fb-aff">
+                            <div class="formula-label"><i class="fas fa-check-circle"></i> Affirmative (+)</div>
+                            <div class="formula-rumus">S + V<sub>(s/es)</sub> + O</div>
+                            <div class="formula-example">She reads a book daily</div>
+                        </div>
+                        <div class="formula-box fb-neg">
+                            <div class="formula-label"><i class="fas fa-times-circle"></i> Negative (-)</div>
+                            <div class="formula-rumus">S + do/does + not + V<sub>1</sub> + O</div>
+                            <div class="formula-example">She does not read a book daily</div>
+                        </div>
+                        <div class="formula-box fb-int">
+                            <div class="formula-label"><i class="fas fa-question-circle"></i> Interrogative (?)</div>
+                            <div class="formula-rumus">Do/Does + S + V<sub>1</sub> + O + ?</div>
+                            <div class="formula-example">Does she read a book daily ?</div>
+                        </div>
+                    </div>
+                    <div class="material-note"><i class="fas fa-lightbulb"></i> do &rarr; I / You / We / They &nbsp;|&nbsp; does &rarr; He / She / It</div>
+                </div>
+
+                <div class="dev-dashboard">
+                    <div class="dev-badge"><i class="fas fa-code"></i> Developer Dashboard</div>
+                    <div class="dev-avatar">
+                        <div class="dev-avatar-ring"></div>
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div class="dev-name">Darmawati, S.Pd., M.Pd.</div>
+                    <div class="dev-divider"></div>
+                    <div class="dev-school"><i class="fas fa-school"></i> SMPN 1 ANGGERAJA</div>
+                    <div class="dev-role"><i class="fas fa-laptop-code"></i> Pengembang Media Pembelajaran</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="singleGame" class="screen">
+            <header class="header">
+                <div class="title"><i class="fas fa-star star-icon"></i> Arrange the Sentence <i class="fas fa-star star-icon"></i></div>
+                <div class="header-stats">
+                    <button class="menu-btn" id="spMenu" title="Menu" aria-label="Back to menu"><i class="fas fa-home"></i></button>
+                    <div class="stat-badge"><i class="fas fa-book-open"></i><span id="spQ">1/40</span></div>
+                    <div class="stat-badge"><i class="fas fa-trophy"></i>Score: <span class="score-value" id="spScore">0</span></div>
+                </div>
+            </header>
+            <div class="type-tag" id="spType"></div>
             <div class="section-label"><i class="fas fa-palette"></i> Word Bank</div>
-            <div class="word-bank" id="wordBank" role="region" aria-label="Word bank with floating words">
-                <div class="bank-empty-msg" id="bankEmptyMsg">
-                    <i class="fas fa-check-circle"></i> All words placed!
+            <div class="word-bank" id="spBank"><div class="bank-empty-msg" id="spEmpty"><i class="fas fa-check-circle"></i> All words placed!</div></div>
+            <div class="hint-text"><i class="fas fa-hand-point-down"></i> Drag words into the area below to build the sentence</div>
+            <div class="section-label"><i class="fas fa-pen-fancy"></i> Your Sentence</div>
+            <div class="sentence-area" id="spSentence"></div>
+            <div class="controls">
+                <button class="btn btn-check" id="spCheck"><i class="fas fa-check-circle"></i> Check</button>
+                <button class="btn btn-reset" id="spReset"><i class="fas fa-redo-alt"></i> Reset</button>
+                <button class="btn btn-next" id="spNext"><i class="fas fa-arrow-right"></i> Next</button>
+            </div>
+            <div class="feedback-zone" id="spFeedback"></div>
+        </div>
+
+        <div id="singleEnd" class="screen">
+            <div class="end-screen">
+                <div class="end-title grad"><i class="fas fa-award"></i> Great Job!</div>
+                <div class="end-score" id="spEndScore"></div>
+                <div class="end-msg" id="spEndMsg"></div>
+                <div class="end-btns">
+                    <button class="btn btn-again" id="spAgain"><i class="fas fa-redo"></i> Play Again</button>
+                    <button class="btn btn-menu" id="spEndMenu"><i class="fas fa-home"></i> Main Menu</button>
                 </div>
             </div>
+        </div>
 
-            <div class="hint-text">
-                <i class="fas fa-hand-point-down"></i>
-                Drag words into the area below to build the sentence
+        <div id="twoPlayerGame" class="screen">
+            <header class="header tp-header">
+                <div class="title"><i class="fas fa-star star-icon"></i> Sentence Race <i class="fas fa-star star-icon"></i></div>
+                <div class="header-stats">
+                    <button class="menu-btn" id="tpMenu" title="Menu" aria-label="Back to menu"><i class="fas fa-home"></i></button>
+                    <div class="stat-badge"><i class="fas fa-book-open"></i><span id="tpRound">1/40</span></div>
+                    <div class="stat-badge p1-b"><i class="fas fa-trophy"></i>P1: <span class="score-value" id="tpP1S">0</span></div>
+                    <div class="stat-badge p2-b"><i class="fas fa-trophy"></i>P2: <span class="score-value" id="tpP2S">0</span></div>
+                </div>
+            </header>
+            <div class="round-banner" id="roundBanner"></div>
+            <div class="players-grid">
+                <div class="player-panel" id="p1Panel">
+                    <div class="player-label p1-label"><i class="fas fa-user"></i> Player 1</div>
+                    <div class="type-tag" id="p1Type"></div>
+                    <div class="section-label"><i class="fas fa-palette"></i> Word Bank</div>
+                    <div class="word-bank tp-bank" id="p1Bank"><div class="bank-empty-msg" id="p1Empty"><i class="fas fa-check-circle"></i> All placed!</div></div>
+                    <div class="hint-text"><i class="fas fa-hand-point-down"></i> Drag words below</div>
+                    <div class="section-label"><i class="fas fa-pen-fancy"></i> Your Sentence</div>
+                    <div class="sentence-area tp-sentence" id="p1Sentence"></div>
+                    <div class="player-check-wrap"><button class="btn btn-check" id="p1Check"><i class="fas fa-check-circle"></i> Check</button></div>
+                    <div class="player-feedback" id="p1Feedback"></div>
+                    <div class="lock-overlay" id="p1Overlay"><i class="fas fa-hourglass-half"></i><span></span></div>
+                </div>
+                <div class="vs-divider"><span>VS</span></div>
+                <div class="player-panel" id="p2Panel">
+                    <div class="player-label p2-label"><i class="fas fa-user"></i> Player 2</div>
+                    <div class="type-tag" id="p2Type"></div>
+                    <div class="section-label"><i class="fas fa-palette"></i> Word Bank</div>
+                    <div class="word-bank tp-bank" id="p2Bank"><div class="bank-empty-msg" id="p2Empty"><i class="fas fa-check-circle"></i> All placed!</div></div>
+                    <div class="hint-text"><i class="fas fa-hand-point-down"></i> Drag words below</div>
+                    <div class="section-label"><i class="fas fa-pen-fancy"></i> Your Sentence</div>
+                    <div class="sentence-area tp-sentence" id="p2Sentence"></div>
+                    <div class="player-check-wrap"><button class="btn btn-check" id="p2Check"><i class="fas fa-check-circle"></i> Check</button></div>
+                    <div class="player-feedback" id="p2Feedback"></div>
+                    <div class="lock-overlay" id="p2Overlay"><i class="fas fa-hourglass-half"></i><span></span></div>
+                </div>
             </div>
-
-            <div class="section-label"><i class="fas fa-pen-fancy"></i> Your Sentence</div>
-            <div class="sentence-area" id="sentenceArea" role="region" aria-label="Sentence drop zone"></div>
-
-            <div class="controls">
-                <button class="btn btn-check" id="btnCheck" aria-label="Check answer">
-                    <i class="fas fa-check-circle"></i> Check
-                </button>
-                <button class="btn btn-reset" id="btnReset" aria-label="Reset question">
-                    <i class="fas fa-redo-alt"></i> Reset
-                </button>
-                <button class="btn btn-next" id="btnNext" aria-label="Next question">
-                    <i class="fas fa-arrow-right"></i> Next
-                </button>
+            <div class="tp-controls">
+                <button class="btn btn-reset" id="tpReset"><i class="fas fa-redo-alt"></i> Reset Round</button>
+                <button class="btn btn-next" id="tpNext" style="display:none"><i class="fas fa-arrow-right"></i> Next Round</button>
             </div>
+        </div>
 
-            <div class="feedback-zone" id="feedbackZone"></div>
-        </main>
-
-        <!-- Game over panel -->
-        <div class="game-over-panel" id="gameOverPanel">
-            <div class="go-title"><i class="fas fa-award"></i> Great Job!</div>
-            <div class="go-score" id="goScore"></div>
-            <div class="go-msg" id="goMsg"></div>
-            <button class="btn btn-again" id="btnAgain" aria-label="Play again">
-                <i class="fas fa-play"></i> Play Again
-            </button>
+        <div id="championScreen" class="screen">
+            <div class="end-screen">
+                <span class="champ-crown"><i class="fas fa-crown"></i></span>
+                <div class="end-title" id="champTitle"></div>
+                <div class="champ-scores">
+                    <div class="champ-card p1-card" id="champP1C">
+                        <div class="champ-label">Player 1</div>
+                        <div class="champ-num" id="champP1N">0</div>
+                    </div>
+                    <div class="champ-vs">VS</div>
+                    <div class="champ-card p2-card" id="champP2C">
+                        <div class="champ-label">Player 2</div>
+                        <div class="champ-num" id="champP2N">0</div>
+                    </div>
+                </div>
+                <div class="end-msg" id="champMsg"></div>
+                <div class="end-btns">
+                    <button class="btn btn-again" id="champAgain"><i class="fas fa-redo"></i> Play Again</button>
+                    <button class="btn btn-menu" id="champMenu"><i class="fas fa-home"></i> Main Menu</button>
+                </div>
+            </div>
         </div>
     </div>
 
+    <footer class="global-footer">
+        <i class="fas fa-heart"></i> Developed by <span>Darmawati, S.Pd., M.Pd.</span> &mdash; SMPN 1 ANGGERAJA
+    </footer>
+
     <script>
-    (function() {
+    (function(){
         'use strict';
 
-        /* ===== Sentence Data (20 simple present tense) ===== */
-        const SENTENCES = [
-            "The cat sleeps on the mat",
-            "She reads a book daily",
-            "They play in the park",
-            "He drinks water every morning",
-            "We eat lunch at noon",
-            "The sun rises in the east",
-            "Birds fly in the sky",
-            "I walk to school daily",
-            "Dogs bark at strangers",
-            "She sings a nice song",
-            "The baby cries for milk",
-            "He writes a short letter",
-            "We watch TV every evening",
-            "The flower blooms in spring",
-            "She cooks tasty dinner",
-            "Children love to play",
-            "The teacher teaches well",
-            "He runs very fast",
-            "I brush my teeth daily",
-            "The fish swims in water"
-        ];
+        var audioCtx = null;
+        function getAudio(){
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
 
-        /* Card color palette — soft pastels with readable text */
-        const PALETTE = [
-            { bg:'#FFB3BA', bd:'#FF9AA2', tx:'#7A2E2E' },
-            { bg:'#BAFFC9', bd:'#8FE6A0', tx:'#1E5E1E' },
-            { bg:'#BAE1FF', bd:'#8ECDFF', tx:'#1E4A5E' },
-            { bg:'#FFF3BA', bd:'#FFE88A', tx:'#5E551E' },
-            { bg:'#E4BAFF', bd:'#CF9FFF', tx:'#441E5E' },
-            { bg:'#FFD9BA', bd:'#FFC48A', tx:'#5E351E' },
-            { bg:'#BAF2FF', bd:'#8EE8FF', tx:'#1E555E' },
-            { bg:'#C7F9CC', bd:'#9AF0A8', tx:'#1E5E35' },
-            { bg:'#D9BBFF', bd:'#C49FFF', tx:'#351E5E' },
-            { bg:'#FFDAB9', bd:'#FFC8A0', tx:'#5E451E' },
-        ];
-
-        /* ===== State ===== */
-        let curIdx = 0;
-        let score = 0;
-        let isLocked = false;       // true after correct answer
-        let floaters = [];          // { el, x, y, vx, vy }
-        let rafId = null;
-        let drag = null;            // current drag state
-
-        /* ===== DOM refs ===== */
-        const wordBank      = document.getElementById('wordBank');
-        const bankEmptyMsg  = document.getElementById('bankEmptyMsg');
-        const sentenceArea   = document.getElementById('sentenceArea');
-        const feedbackZone   = document.getElementById('feedbackZone');
-        const qCounter       = document.getElementById('qCounter');
-        const scoreEl        = document.getElementById('scoreEl');
-        const gameArea       = document.getElementById('gameArea');
-        const gameOverPanel  = document.getElementById('gameOverPanel');
-        const confettiLayer  = document.getElementById('confettiLayer');
-        const btnCheck       = document.getElementById('btnCheck');
-        const btnReset       = document.getElementById('btnReset');
-        const btnNext        = document.getElementById('btnNext');
-        const btnAgain       = document.getElementById('btnAgain');
-
-        /* ===== Helpers ===== */
-        function shuffle(arr) {
-            const a = arr.slice();
-            for (let i = a.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [a[i], a[j]] = [a[j], a[i]];
+        function playClap(){
+            var ctx = getAudio();
+            var now = ctx.currentTime;
+            var clapTimes = [0, 0.06, 0.12, 0.2, 0.28];
+            for(var i = 0; i < clapTimes.length; i++){
+                (function(t){
+                    var dur = 0.04 + Math.random() * 0.03;
+                    var bufLen = Math.floor(ctx.sampleRate * dur);
+                    var buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+                    var data = buf.getChannelData(0);
+                    for(var s = 0; s < bufLen; s++){
+                        data[s] = (Math.random() * 2 - 1) * Math.pow(1 - s / bufLen, 3);
+                    }
+                    var src = ctx.createBufferSource();
+                    src.buffer = buf;
+                    var bp = ctx.createBiquadFilter();
+                    bp.type = 'bandpass';
+                    bp.frequency.value = 1500 + Math.random() * 2000;
+                    bp.Q.value = 1.5;
+                    var gain = ctx.createGain();
+                    gain.gain.value = 0.5 + Math.random() * 0.3;
+                    src.connect(bp); bp.connect(gain); gain.connect(ctx.destination);
+                    src.start(now + t);
+                })(clapTimes[i]);
             }
-            return a;
         }
 
-        function evtPos(e) {
-            if (e.touches && e.touches.length) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-            if (e.changedTouches && e.changedTouches.length) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
-            return { x: e.clientX, y: e.clientY };
+        function playHuhh(){
+            var ctx = getAudio();
+            var now = ctx.currentTime;
+            var dur = 0.4;
+            var nLen = Math.floor(ctx.sampleRate * dur);
+            var nBuf = ctx.createBuffer(1, nLen, ctx.sampleRate);
+            var nData = nBuf.getChannelData(0);
+            for(var i = 0; i < nLen; i++){
+                nData[i] = (Math.random() * 2 - 1) * 0.3;
+            }
+            var nSrc = ctx.createBufferSource();
+            nSrc.buffer = nBuf;
+            var nFilter = ctx.createBiquadFilter();
+            nFilter.type = 'bandpass';
+            nFilter.frequency.value = 600;
+            nFilter.Q.value = 2;
+            var nGain = ctx.createGain();
+            nGain.gain.setValueAtTime(0.4, now);
+            nGain.gain.exponentialRampToValueAtTime(0.01, now + dur);
+            nSrc.connect(nFilter); nFilter.connect(nGain); nGain.connect(ctx.destination);
+            nSrc.start(now); nSrc.stop(now + dur);
+            var osc = ctx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(320, now);
+            osc.frequency.exponentialRampToValueAtTime(120, now + dur);
+            var oGain = ctx.createGain();
+            oGain.gain.setValueAtTime(0.15, now);
+            oGain.gain.exponentialRampToValueAtTime(0.01, now + dur);
+            var oFilter = ctx.createBiquadFilter();
+            oFilter.type = 'lowpass';
+            oFilter.frequency.value = 800;
+            osc.connect(oFilter); oFilter.connect(oGain); oGain.connect(ctx.destination);
+            osc.start(now); osc.stop(now + dur);
         }
 
-        function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+        var SENTENCES = [
+            {text:"The cat sleeps on the mat",               type:"affirmative"},
+            {text:"They play in the park",                   type:"affirmative"},
+            {text:"He drinks water every morning",           type:"affirmative"},
+            {text:"We eat lunch at noon",                    type:"affirmative"},
+            {text:"The sun rises in the east",               type:"affirmative"},
+            {text:"Birds fly in the sky",                    type:"affirmative"},
+            {text:"I walk to school daily",                  type:"affirmative"},
+            {text:"Dogs bark at strangers",                  type:"affirmative"},
+            {text:"She sings a nice song",                   type:"affirmative"},
+            {text:"The flower blooms in spring",             type:"affirmative"},
+            {text:"She does not like spicy food",            type:"negative"},
+            {text:"They do not go to school on Sunday",      type:"negative"},
+            {text:"He does not eat meat at all",             type:"negative"},
+            {text:"We do not watch TV in the morning",       type:"negative"},
+            {text:"I do not drink coffee every day",         type:"negative"},
+            {text:"The cat does not sleep at noon",          type:"negative"},
+            {text:"My mother does not work on Saturday",     type:"negative"},
+            {text:"They do not play football in the rain",   type:"negative"},
+            {text:"You do not need an umbrella now",         type:"negative"},
+            {text:"He does not speak English very well",     type:"negative"},
+            {text:"The dog does not bite people",            type:"negative"},
+            {text:"She does not drink tea in the morning",   type:"negative"},
+            {text:"We do not eat rice for breakfast",        type:"negative"},
+            {text:"He does not go to bed late",              type:"negative"},
+            {text:"They do not like cold weather",           type:"negative"},
+            {text:"The baby does not cry at night",          type:"negative"},
+            {text:"I do not understand this question",       type:"negative"},
+            {text:"She does not write a letter every week",  type:"negative"},
+            {text:"We do not play music in class",           type:"negative"},
+            {text:"He does not wear a uniform on Sunday",    type:"negative"},
+            {text:"Do you like ice cream ?",                 type:"interrogative"},
+            {text:"Does she read books every day ?",         type:"interrogative"},
+            {text:"Do they go to school by bus ?",           type:"interrogative"},
+            {text:"Does he play guitar every evening ?",     type:"interrogative"},
+            {text:"Do we have English class today ?",        type:"interrogative"},
+            {text:"Does the cat drink milk ?",               type:"interrogative"},
+            {text:"Do birds sing in the morning ?",          type:"interrogative"},
+            {text:"Does your father work in a hospital ?",   type:"interrogative"},
+            {text:"Do you study math on Monday ?",           type:"interrogative"},
+            {text:"Does she cook dinner every night ?",      type:"interrogative"}
+        ];
 
-        /* ===== Load a question ===== */
-        function loadQuestion(idx) {
-            if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-            floaters = [];
-            drag = null;
-            isLocked = false;
+        var PALETTE = [
+            {bg:'#FFB3BA',bd:'#FF9AA2',tx:'#7A2E2E'},{bg:'#BAFFC9',bd:'#8FE6A0',tx:'#1E5E1E'},
+            {bg:'#BAE1FF',bd:'#8ECDFF',tx:'#1E4A5E'},{bg:'#FFF3BA',bd:'#FFE88A',tx:'#5E551E'},
+            {bg:'#E4BAFF',bd:'#CF9FFF',tx:'#441E5E'},{bg:'#FFD9BA',bd:'#FFC48A',tx:'#5E351E'},
+            {bg:'#BAF2FF',bd:'#8EE8FF',tx:'#1E555E'},{bg:'#C7F9CC',bd:'#9AF0A8',tx:'#1E5E35'},
+            {bg:'#D9BBFF',bd:'#C49FFF',tx:'#351E5E'},{bg:'#FFDAB9',bd:'#FFC8A0',tx:'#5E451E'}
+        ];
 
-            // Clear word bank (keep empty message reference)
-            wordBank.querySelectorAll('.word-card').forEach(c => c.remove());
-            sentenceArea.innerHTML = '';
-            feedbackZone.innerHTML = '';
-            bankEmptyMsg.classList.remove('visible');
-            sentenceArea.classList.remove('result-correct', 'result-wrong', 'drag-hover');
+        var TYPE_INFO = {
+            affirmative:   {cls:'t-aff', icon:'fa-check-circle',    label:'Affirmative (+)'},
+            negative:      {cls:'t-neg', icon:'fa-times-circle',    label:'Negative (-)'},
+            interrogative: {cls:'t-int', icon:'fa-question-circle',  label:'Interrogative (?)'}
+        };
 
-            qCounter.textContent = (idx + 1) + ' / ' + SENTENCES.length;
+        var TOTAL = SENTENCES.length;
 
-            const words = shuffle(SENTENCES[idx].split(' '));
-            const bankRect = wordBank.getBoundingClientRect();
+        function shuffle(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t;}return b;}
 
-            words.forEach((word, i) => {
-                const card = makeCard(word, i);
-                wordBank.appendChild(card);
-
-                // Measure then position randomly
-                const cr = card.getBoundingClientRect();
-                const maxX = Math.max(0, bankRect.width - cr.width - 4);
-                const maxY = Math.max(0, bankRect.height - cr.height - 4);
-                const x = Math.random() * maxX;
-                const y = Math.random() * maxY;
-                card.style.left = x + 'px';
-                card.style.top  = y + 'px';
-
-                // Random speed & direction — each word unique
-                const speed = 0.4 + Math.random() * 1.4;
-                const angle = Math.random() * Math.PI * 2;
-
-                floaters.push({
-                    el: card, x, y,
-                    vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed
-                });
-            });
-
-            refreshPlaceholder();
-            refreshBankEmpty();
-            startLoop();
+        function evtPos(e){
+            if(e.touches&&e.touches.length) return {x:e.touches[0].clientX, y:e.touches[0].clientY};
+            if(e.changedTouches&&e.changedTouches.length) return {x:e.changedTouches[0].clientX, y:e.changedTouches[0].clientY};
+            return {x:e.clientX, y:e.clientY};
         }
 
-        /* Create a word card element */
-        function makeCard(word, colorIdx) {
-            const c = document.createElement('div');
-            c.className = 'word-card';
-            c.textContent = word;
-            c.setAttribute('data-word', word);
+        function wci(w){var h=0;for(var i=0;i<w.length;i++){h=((h<<5)-h)+w.charCodeAt(i);h|=0;}return Math.abs(h)%PALETTE.length;}
 
-            const p = PALETTE[colorIdx % PALETTE.length];
-            c.style.backgroundColor = p.bg;
-            c.style.borderColor = p.bd;
-            c.style.color = p.tx;
-
-            // Small X button (visible on hover in sentence area)
-            const xBtn = document.createElement('div');
-            xBtn.className = 'return-x';
-            xBtn.innerHTML = '<i class="fas fa-times" style="font-size:10px"></i>';
-            xBtn.addEventListener('pointerdown', function(ev) {
-                ev.stopPropagation();
-                if (isLocked) return;
-                returnCardToBank(c);
-            });
-            c.appendChild(xBtn);
-
-            // Drag start
-            c.addEventListener('pointerdown', function(ev) {
-                if (isLocked) return;
-                beginDrag(ev, c);
-            });
-
-            return c;
+        function setTypeTag(el,type){
+            var info=TYPE_INFO[type]; if(!info||!el) return;
+            el.className='type-tag '+info.cls;
+            el.innerHTML='<i class="fas '+info.icon+'"></i> '+info.label;
         }
 
-        /* ===== Floating animation loop ===== */
-        function startLoop() {
-            function tick() {
-                const br = wordBank.getBoundingClientRect();
-                for (let i = 0; i < floaters.length; i++) {
-                    const f = floaters[i];
-                    f.x += f.vx;
-                    f.y += f.vy;
+        function burstConfetti(){
+            var cols=['#FFB3BA','#BAFFC9','#BAE1FF','#FFF3BA','#E4BAFF','#FFD9BA','#FF9AA2','#8FE6A0','#8ECDFF','#CF9FFF','#FFD700','#FF6B6B'];
+            var cl=document.getElementById('confettiLayer');
+            for(var i=0;i<50;i++){
+                var b=document.createElement('div'); b.className='confetti-bit';
+                var s=6+Math.random()*10;
+                b.style.width=s+'px'; b.style.height=s+'px';
+                b.style.borderRadius=Math.random()>.5?'50%':'3px';
+                b.style.backgroundColor=cols[Math.floor(Math.random()*cols.length)];
+                b.style.left=(5+Math.random()*90)+'%'; b.style.top='-12px';
+                b.style.setProperty('--delay',(Math.random()*.6)+'s');
+                b.style.setProperty('--dur',(1.2+Math.random()*1)+'s');
+                b.style.setProperty('--dx',(Math.random()*140-70)+'px');
+                b.style.setProperty('--spin',(400+Math.random()*500)+'deg');
+                cl.appendChild(b);
+                (function(el){setTimeout(function(){el.remove();},3000);})(b);
+            }
+        }
 
-                    const el = f.el;
-                    const w = el.offsetWidth;
-                    const h = el.offsetHeight;
+        function createPlayerGame(cfg){
+            var bankEl=cfg.bankEl, sentEl=cfg.sentEl, emptyEl=cfg.emptyEl, fbEl=cfg.fbEl,
+                checkBtn=cfg.checkBtn, overlayEl=cfg.overlayEl, showHint=cfg.showHint;
+            var floaters=[], rafId=null, isLocked=false, currentWords=[], onWinCb=null;
 
-                    // Bounce off walls
-                    if (f.x <= 0)            { f.x = 0;            f.vx = Math.abs(f.vx); }
-                    if (f.x >= br.width - w) { f.x = br.width - w; f.vx = -Math.abs(f.vx); }
-                    if (f.y <= 0)            { f.y = 0;            f.vy = Math.abs(f.vy); }
-                    if (f.y >= br.height - h){ f.y = br.height - h; f.vy = -Math.abs(f.vy); }
+            function load(words){
+                if(rafId){cancelAnimationFrame(rafId); rafId=null;}
+                floaters=[]; isLocked=false; currentWords=words.slice();
+                var old=bankEl.querySelectorAll('.word-card');
+                for(var k=0;k<old.length;k++) old[k].remove();
+                sentEl.innerHTML=''; fbEl.innerHTML='';
+                emptyEl.classList.remove('visible');
+                sentEl.classList.remove('result-correct','result-wrong','drag-hover');
+                var panel=bankEl.closest('.player-panel');
+                if(panel) panel.classList.remove('winner','locked');
+                if(overlayEl) overlayEl.classList.remove('show');
+                checkBtn.disabled=false;
 
-                    el.style.left = f.x + 'px';
-                    el.style.top  = f.y + 'px';
+                var br=bankEl.getBoundingClientRect();
+                var shuf=shuffle(words);
+                for(var i=0;i<shuf.length;i++){
+                    var word=shuf[i];
+                    var isPunc = /^[?!.,;:]$/.test(word);
+                    var card=makeCard(word, isPunc);
+                    bankEl.appendChild(card);
+                    var cr=card.getBoundingClientRect();
+                    var mx=Math.max(0,br.width-cr.width-4);
+                    var my=Math.max(0,br.height-cr.height-4);
+                    var x=Math.random()*mx, y=Math.random()*my;
+                    card.style.left=x+'px'; card.style.top=y+'px';
+                    var spd=0.4+Math.random()*1.4, ang=Math.random()*Math.PI*2;
+                    floaters.push({el:card, x:x, y:y, vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd});
                 }
-                rafId = requestAnimationFrame(tick);
-            }
-            rafId = requestAnimationFrame(tick);
-        }
-
-        /* ===== Drag & Drop ===== */
-        function beginDrag(e, card) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const pos = evtPos(e);
-            const rect = card.getBoundingClientRect();
-            const fromSentence = card.classList.contains('placed');
-
-            // Remove from its current context
-            if (fromSentence) {
-                card.classList.remove('placed');
-                refreshPlaceholder();
-            } else {
-                floaters = floaters.filter(f => f.el !== card);
-                refreshBankEmpty();
+                refreshPH(); refreshBE(); startLoop();
             }
 
-            // Switch to fixed positioning and attach to body
-            card.style.position = 'fixed';
-            card.style.left = rect.left + 'px';
-            card.style.top  = rect.top + 'px';
-            card.style.zIndex = '10000';
-            card.classList.add('dragging');
-            document.body.appendChild(card);
-
-            drag = {
-                el: card,
-                offX: pos.x - rect.left,
-                offY: pos.y - rect.top,
-                startX: pos.x,
-                startY: pos.y,
-                fromSentence: fromSentence,
-                moved: false
-            };
-
-            card.setPointerCapture(e.pointerId);
-        }
-
-        function onPointerMove(e) {
-            if (!drag) return;
-            e.preventDefault();
-            const pos = evtPos(e);
-            drag.el.style.left = (pos.x - drag.offX) + 'px';
-            drag.el.style.top  = (pos.y - drag.offY) + 'px';
-
-            if (dist(pos, { x: drag.startX, y: drag.startY }) > 5) {
-                drag.moved = true;
+            function makeCard(word, isPunc){
+                var c=document.createElement('div');
+                c.className='word-card' + (isPunc ? ' punct' : '');
+                c.textContent=word; c.dataset.word=word;
+                var p=PALETTE[wci(word)];
+                c.style.backgroundColor=p.bg; c.style.borderColor=p.bd; c.style.color=p.tx;
+                var xb=document.createElement('div'); xb.className='return-x';
+                xb.innerHTML='<i class="fas fa-times" style="font-size:10px"></i>';
+                xb.addEventListener('pointerdown',function(ev){ev.stopPropagation(); if(isLocked)return; returnToBank(c);});
+                c.appendChild(xb);
+                c.addEventListener('pointerdown',function(ev){if(isLocked)return; ev.preventDefault(); ev.stopPropagation(); beginDrag(ev,c);});
+                c.addEventListener('pointermove',function(ev){if(!c._dg)return; ev.preventDefault(); moveDrag(ev,c);});
+                c.addEventListener('pointerup',function(ev){if(!c._dg)return; ev.preventDefault(); endDrag(ev,c);});
+                c.addEventListener('pointercancel',function(ev){if(!c._dg)return; ev.preventDefault(); endDrag(ev,c);});
+                c.addEventListener('touchstart',function(ev){if(isLocked)return; var touch=ev.touches[0]; var me=new MouseEvent('pointerdown',{clientX:touch.clientX,clientY:touch.clientY}); beginDrag(me,c);},{passive:true});
+                c.addEventListener('touchmove',function(ev){if(!c._dg)return; ev.preventDefault(); var touch=ev.touches[0]; var me=new MouseEvent('pointermove',{clientX:touch.clientX,clientY:touch.clientY}); moveDrag(me,c);},{passive:false});
+                c.addEventListener('touchend',function(ev){if(!c._dg)return; ev.preventDefault(); var touch=ev.changedTouches[0]; var me=new MouseEvent('pointerup',{clientX:touch.clientX,clientY:touch.clientY}); endDrag(me,c);},{passive:false});
+                return c;
             }
 
-            // Highlight sentence area if hovering
-            const sr = sentenceArea.getBoundingClientRect();
-            const over = pos.x >= sr.left && pos.x <= sr.right && pos.y >= sr.top && pos.y <= sr.bottom;
-            sentenceArea.classList.toggle('drag-hover', over);
-
-            // Show insert bar if reordering within sentence
-            clearInsertBar();
-            if (over && drag.fromSentence && drag.moved) {
-                showInsertBar(pos.x);
-            }
-        }
-
-        function onPointerUp(e) {
-            if (!drag) return;
-            e.preventDefault();
-
-            const card = drag.el;
-            card.classList.remove('dragging');
-            sentenceArea.classList.remove('drag-hover');
-            clearInsertBar();
-
-            const pos = evtPos(e);
-            const sr = sentenceArea.getBoundingClientRect();
-            const over = pos.x >= sr.left && pos.x <= sr.right && pos.y >= sr.top && pos.y <= sr.bottom;
-
-            // Click (no significant move) on placed card → return to bank
-            if (!drag.moved && drag.fromSentence) {
-                returnCardToBank(card);
-                drag = null;
-                return;
+            function beginDrag(e,card){
+                var pos=evtPos(e), rect=card.getBoundingClientRect();
+                var from=card.classList.contains('placed');
+                if(from){card.classList.remove('placed'); refreshPH();}
+                else{floaters=floaters.filter(function(f){return f.el!==card;}); refreshBE();}
+                card.style.position='fixed'; card.style.left=rect.left+'px'; card.style.top=rect.top+'px';
+                card.style.zIndex='10000'; card.classList.add('dragging'); card._dg=true;
+                card._dd={ox:pos.x-rect.left, oy:pos.y-rect.top, sx:pos.x, sy:pos.y, from:from, moved:false};
+                document.body.appendChild(card);
+                try{card.setPointerCapture(e.pointerId);}catch(ex){}
             }
 
-            if (over) {
-                // Place into sentence area
-                card.style.position = '';
-                card.style.left = '';
-                card.style.top = '';
-                card.style.zIndex = '';
-                card.classList.add('placed');
+            function moveDrag(e,card){
+                var d=card._dd, pos=evtPos(e);
+                card.style.left=(pos.x-d.ox)+'px'; card.style.top=(pos.y-d.oy)+'px';
+                if(Math.hypot(pos.x-d.sx, pos.y-d.sy)>5) d.moved=true;
+                var sr=sentEl.getBoundingClientRect();
+                var over=pos.x>=sr.left&&pos.x<=sr.right&&pos.y>=sr.top&&pos.y<=sr.bottom;
+                sentEl.classList.toggle('drag-hover',over);
+                clearIB();
+                if(over && d.from && d.moved) showIB(pos.x);
+            }
 
-                const insertIdx = calcInsertIndex(pos.x);
-                const siblings = [...sentenceArea.querySelectorAll('.word-card.placed')];
-                if (insertIdx >= siblings.length) {
-                    sentenceArea.appendChild(card);
+            function endDrag(e,card){
+                var d=card._dd; card._dg=false; card._dd=null;
+                card.classList.remove('dragging'); sentEl.classList.remove('drag-hover'); clearIB();
+                var pos=evtPos(e), sr=sentEl.getBoundingClientRect();
+                var over=pos.x>=sr.left&&pos.x<=sr.right&&pos.y>=sr.top&&pos.y<=sr.bottom;
+                
+                if(!d.moved && d.from){
+                    returnToBank(card); 
+                    try{card.releasePointerCapture(e.pointerId);}catch(ex){} 
+                    return;
+                }
+                
+                if(over){
+                    card.style.position=''; card.style.left=''; card.style.top=''; card.style.zIndex='';
+                    card.classList.add('placed');
+                    floaters=floaters.filter(function(f){return f.el!==card;});
+                    var idx=calcIdx(pos.x), sibs=Array.prototype.slice.call(sentEl.querySelectorAll('.word-card.placed'));
+                    if(idx>=sibs.length) sentEl.appendChild(card);
+                    else sentEl.insertBefore(card, sibs[idx]);
+                    refreshPH();
+                    refreshBE();
+                } else { 
+                    returnToBank(card); 
+                }
+                try{card.releasePointerCapture(e.pointerId);}catch(ex){}
+            }
+
+            function returnToBank(card){
+                var br=bankEl.getBoundingClientRect();
+                var cr=card.getBoundingClientRect();
+                card.style.position='absolute';
+                var x=cr.left-br.left + (cr.width/2);
+                var y=cr.top-br.top + (cr.height/2);
+                x=Math.max(0, Math.min(x, br.width - cr.width - 2));
+                y=Math.max(0, Math.min(y, br.height - cr.height - 2));
+                card.style.left=x+'px'; 
+                card.style.top=y+'px'; 
+                card.style.zIndex='';
+                card.classList.remove('placed','dragging');
+                bankEl.appendChild(card);
+                var exists=floaters.some(function(f){return f.el===card;});
+                if(!exists){
+                    var spd=0.4+Math.random()*1.4, ang=Math.random()*Math.PI*2;
+                    floaters.push({el:card, x:x, y:y, vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd});
+                }
+                refreshBE(); 
+                refreshPH();
+                sentEl.classList.remove('result-wrong','result-correct');
+                fbEl.innerHTML='';
+            }
+
+            function calcIdx(cx){
+                var cards=Array.prototype.slice.call(sentEl.querySelectorAll('.word-card.placed'));
+                for(var i=0;i<cards.length;i++){var r=cards[i].getBoundingClientRect(); if(cx<r.left+r.width/2) return i;}
+                return cards.length;
+            }
+            function clearIB(){var b=sentEl.querySelector('.insert-bar'); if(b) b.remove();}
+            function showIB(cx){
+                var bar=document.createElement('div'); bar.className='insert-bar';
+                var idx=calcIdx(cx), sibs=Array.prototype.slice.call(sentEl.querySelectorAll('.word-card.placed'));
+                if(idx>=sibs.length) sentEl.appendChild(bar);
+                else sentEl.insertBefore(bar, sibs[idx]);
+            }
+            function refreshPH(){
+                var has=sentEl.querySelector('.word-card.placed');
+                if(!has && !sentEl.querySelector('.sentence-placeholder')){
+                    var ph=document.createElement('div'); ph.className='sentence-placeholder';
+                    ph.innerHTML='<i class="fas fa-pen-fancy"></i> Drop words here...'; sentEl.appendChild(ph);
+                } else if(has){var ph=sentEl.querySelector('.sentence-placeholder'); if(ph) ph.remove();}
+            }
+            function refreshBE(){emptyEl.classList.toggle('visible', floaters.length===0);}
+
+            function startLoop(){
+                function tick(){
+                    var br=bankEl.getBoundingClientRect();
+                    for(var i=0;i<floaters.length;i++){
+                        var f=floaters[i]; 
+                        if(f.el && f.el.parentNode === bankEl){
+                            f.x+=f.vx; f.y+=f.vy;
+                            var w=f.el.offsetWidth, h=f.el.offsetHeight;
+                            if(f.x<=0){f.x=0; f.vx=Math.abs(f.vx);}
+                            if(f.x>=br.width-w){f.x=br.width-w; f.vx=-Math.abs(f.vx);}
+                            if(f.y<=0){f.y=0; f.vy=Math.abs(f.vy);}
+                            if(f.y>=br.height-h){f.y=br.height-h; f.vy=-Math.abs(f.vy);}
+                            f.el.style.left=f.x+'px'; f.el.style.top=f.y+'px';
+                        }
+                    }
+                    rafId=requestAnimationFrame(tick);
+                }
+                rafId=requestAnimationFrame(tick);
+            }
+
+            function check(correctSent){
+                if(isLocked) return false;
+                var placed=Array.prototype.slice.call(sentEl.querySelectorAll('.word-card.placed'));
+                if(!placed.length){
+                    fbEl.innerHTML='<div class="fb-msg fb-wrong"><i class="fas fa-exclamation-circle"></i> Place words first!</div>';
+                    return false;
+                }
+                var user=placed.map(function(c){return c.dataset.word;}).join(' ');
+                if(user===correctSent){
+                    isLocked=true;
+                    checkBtn.disabled=true;
+                    floaters.forEach(function(f){f.vx=0; f.vy=0;});
+                    sentEl.classList.add('result-correct');
+                    fbEl.innerHTML='<div class="fb-msg fb-correct"><i class="fas fa-check-circle"></i> Correct!</div>';
+                    playClap();
+                    if(onWinCb) onWinCb();
+                    return true;
                 } else {
-                    sentenceArea.insertBefore(card, siblings[insertIdx]);
+                    sentEl.classList.add('result-wrong');
+                    setTimeout(function(){sentEl.classList.remove('result-wrong');},550);
+                    playHuhh();
+                    var html='<div class="fb-msg fb-wrong"><i class="fas fa-times-circle"></i> Try again!</div>';
+                    if(showHint) html+='<div class="fb-hint">Answer: <span>'+correctSent+'</span></div>';
+                    fbEl.innerHTML=html;
+                    return false;
                 }
-                refreshPlaceholder();
-            } else {
-                // Return to word bank
-                returnCardToBank(card);
             }
 
-            drag = null;
-        }
-
-        function returnCardToBank(card) {
-            const br = wordBank.getBoundingClientRect();
-            const cr = card.getBoundingClientRect();
-            card.style.position = 'absolute';
-            let x = cr.left - br.left;
-            let y = cr.top - br.top;
-            x = Math.max(0, Math.min(x, br.width - cr.width - 2));
-            y = Math.max(0, Math.min(y, br.height - cr.height - 2));
-            card.style.left = x + 'px';
-            card.style.top  = y + 'px';
-            card.style.zIndex = '';
-            card.classList.remove('placed', 'dragging');
-            wordBank.appendChild(card);
-
-            const speed = 0.4 + Math.random() * 1.4;
-            const angle = Math.random() * Math.PI * 2;
-            floaters.push({ el: card, x, y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed });
-            refreshBankEmpty();
-            refreshPlaceholder();
-        }
-
-        function calcInsertIndex(cursorX) {
-            const cards = [...sentenceArea.querySelectorAll('.word-card.placed')];
-            for (let i = 0; i < cards.length; i++) {
-                const r = cards[i].getBoundingClientRect();
-                if (cursorX < r.left + r.width / 2) return i;
-            }
-            return cards.length;
-        }
-
-        function showInsertBar(cursorX) {
-            const idx = calcInsertIndex(cursorX);
-            const bar = document.createElement('div');
-            bar.className = 'insert-bar';
-            bar.id = 'insertBar';
-            const siblings = [...sentenceArea.querySelectorAll('.word-card.placed')];
-            if (idx >= siblings.length) {
-                sentenceArea.appendChild(bar);
-            } else {
-                sentenceArea.insertBefore(bar, siblings[idx]);
-            }
-        }
-
-        function clearInsertBar() {
-            const b = document.getElementById('insertBar');
-            if (b) b.remove();
-        }
-
-        /* Global pointer listeners */
-        document.addEventListener('pointermove', onPointerMove, { passive: false });
-        document.addEventListener('pointerup', onPointerUp);
-        document.addEventListener('pointercancel', onPointerUp);
-
-        /* ===== UI refreshers ===== */
-        function refreshPlaceholder() {
-            const has = sentenceArea.querySelector('.word-card.placed');
-            if (!has) {
-                if (!sentenceArea.querySelector('.sentence-placeholder')) {
-                    const ph = document.createElement('div');
-                    ph.className = 'sentence-placeholder';
-                    ph.innerHTML = '<i class="fas fa-pen-fancy"></i> Drop words here...';
-                    sentenceArea.appendChild(ph);
+            function lock(winnerName){
+                isLocked=true;
+                floaters.forEach(function(f){f.vx=0; f.vy=0;});
+                checkBtn.disabled=true;
+                var panel=bankEl.closest('.player-panel'); 
+                if(panel) panel.classList.add('locked');
+                if(overlayEl){
+                    overlayEl.querySelector('span').textContent=winnerName+' got it first!'; 
+                    overlayEl.classList.add('show');
                 }
-            } else {
-                const ph = sentenceArea.querySelector('.sentence-placeholder');
-                if (ph) ph.remove();
             }
+            function setWinner(){var panel=bankEl.closest('.player-panel'); if(panel) panel.classList.add('winner');}
+            function reset(){load(currentWords);}
+            function destroy(){
+                if(rafId){cancelAnimationFrame(rafId); rafId=null;}
+                floaters=[];
+                var old=bankEl.querySelectorAll('.word-card');
+                for(var i=0;i<old.length;i++) old[i].remove();
+                sentEl.innerHTML=''; fbEl.innerHTML='';
+                checkBtn.disabled=false;
+            }
+            function setOnWin(cb){onWinCb=cb;}
+
+            return {load:load, check:check, lock:lock, setWinner:setWinner, reset:reset, destroy:destroy, setOnWin:setOnWin};
         }
 
-        function refreshBankEmpty() {
-            bankEmptyMsg.classList.toggle('visible', floaters.length === 0);
+        function showScreen(id){
+            var screens=document.querySelectorAll('.screen');
+            for(var i=0;i<screens.length;i++) screens[i].classList.remove('active');
+            document.getElementById(id).classList.add('active');
         }
 
-        /* ===== Check answer ===== */
-        function checkAnswer() {
-            if (isLocked) return;
-            const placed = [...sentenceArea.querySelectorAll('.word-card.placed')];
-            if (placed.length === 0) {
-                feedbackZone.innerHTML =
-                    '<div class="fb-msg fb-wrong"><i class="fas fa-exclamation-circle"></i> Place some words first!</div>';
-                return;
-            }
+        var gameMode=null, currentIdx=0, score=0, p1Wins=0, p2Wins=0, roundLocked=false;
+        var g1=null, g2=null;
 
-            const userSent = placed.map(c => c.dataset.word).join(' ');
-            const correct  = SENTENCES[curIdx];
+        function startSingle(){
+            gameMode='single'; currentIdx=0; score=0;
+            document.getElementById('spScore').textContent='0';
+            g1=createPlayerGame({
+                bankEl:document.getElementById('spBank'), sentEl:document.getElementById('spSentence'),
+                emptyEl:document.getElementById('spEmpty'), fbEl:document.getElementById('spFeedback'),
+                checkBtn:document.getElementById('spCheck'), overlayEl:null, showHint:true
+            });
+            showScreen('singleGame'); loadSP(0);
+        }
 
-            if (userSent === correct) {
-                // Correct!
-                isLocked = true;
-                score++;
-                scoreEl.textContent = score;
-                sentenceArea.classList.add('result-correct');
-                feedbackZone.innerHTML =
-                    '<div class="fb-msg fb-correct"><i class="fas fa-check-circle"></i> Correct! Well done!</div>';
-                // Stop all floating
-                floaters.forEach(f => { f.vx = 0; f.vy = 0; });
+        function loadSP(idx){
+            currentIdx=idx;
+            document.getElementById('spQ').textContent=(idx+1)+'/'+TOTAL;
+            setTypeTag(document.getElementById('spType'), SENTENCES[idx].type);
+            g1.load(SENTENCES[idx].text.split(' '));
+            document.getElementById('spCheck').disabled=false;
+        }
+
+        function spCheck(){
+            if(g1.check(SENTENCES[currentIdx].text)){
+                score++; 
+                document.getElementById('spScore').textContent=score; 
                 burstConfetti();
+            }
+        }
+        function spReset(){g1.reset();}
+        function spNext(){
+            if(currentIdx<TOTAL-1) {
+                loadSP(currentIdx+1); 
             } else {
-                // Incorrect — show hint, allow retry
-                sentenceArea.classList.add('result-wrong');
-                setTimeout(() => sentenceArea.classList.remove('result-wrong'), 550);
-                feedbackZone.innerHTML =
-                    '<div class="fb-msg fb-wrong"><i class="fas fa-times-circle"></i> Not quite right. Try again!</div>' +
-                    '<div class="fb-hint">Correct answer: <span>' + correct + '</span></div>';
+                showSingleEnd();
             }
         }
 
-        /* ===== Reset ===== */
-        function resetQuestion() {
-            loadQuestion(curIdx);
+        function showSingleEnd(){
+            g1.destroy();
+            var pct=Math.round((score/TOTAL)*100);
+            document.getElementById('spEndScore').innerHTML='You scored <span class="big">'+score+'</span> out of <span class="big">'+TOTAL+'</span>';
+            var msg;
+            if(pct===100) msg='Perfect score! You are a sentence master!';
+            else if(pct>=80) msg='Excellent work! Almost perfect!';
+            else if(pct>=60) msg='Good job! Keep practicing!';
+            else if(pct>=40) msg='Nice try! You can do better!';
+            else msg='Keep learning! Practice makes perfect!';
+            document.getElementById('spEndMsg').textContent=msg;
+            showScreen('singleEnd');
+            if(pct>=60) burstConfetti();
         }
 
-        /* ===== Next ===== */
-        function nextQuestion() {
-            if (curIdx < SENTENCES.length - 1) {
-                curIdx++;
-                loadQuestion(curIdx);
+        function startTwo(){
+            gameMode='two'; currentIdx=0; p1Wins=0; p2Wins=0; roundLocked=false;
+            document.getElementById('tpP1S').textContent='0';
+            document.getElementById('tpP2S').textContent='0';
+            document.getElementById('roundBanner').classList.remove('show');
+            document.getElementById('roundBanner').className='round-banner';
+            document.getElementById('tpNext').style.display='none';
+            g1=createPlayerGame({
+                bankEl:document.getElementById('p1Bank'), sentEl:document.getElementById('p1Sentence'),
+                emptyEl:document.getElementById('p1Empty'), fbEl:document.getElementById('p1Feedback'),
+                checkBtn:document.getElementById('p1Check'), overlayEl:document.getElementById('p1Overlay'), showHint:false
+            });
+            g2=createPlayerGame({
+                bankEl:document.getElementById('p2Bank'), sentEl:document.getElementById('p2Sentence'),
+                emptyEl:document.getElementById('p2Empty'), fbEl:document.getElementById('p2Feedback'),
+                checkBtn:document.getElementById('p2Check'), overlayEl:document.getElementById('p2Overlay'), showHint:false
+            });
+            g1.setOnWin(function(){onPlayerWin(1);});
+            g2.setOnWin(function(){onPlayerWin(2);});
+            showScreen('twoPlayerGame'); loadTP(0);
+        }
+
+        function loadTP(idx){
+            currentIdx=idx; roundLocked=false;
+            document.getElementById('tpRound').textContent=(idx+1)+'/'+TOTAL;
+            document.getElementById('roundBanner').classList.remove('show');
+            document.getElementById('roundBanner').className='round-banner';
+            document.getElementById('tpNext').style.display='none';
+            setTypeTag(document.getElementById('p1Type'), SENTENCES[idx].type);
+            setTypeTag(document.getElementById('p2Type'), SENTENCES[idx].type);
+            var words=SENTENCES[idx].text.split(' ');
+            g1.load(words); g2.load(words);
+            document.getElementById('p1Check').disabled=false;
+            document.getElementById('p2Check').disabled=false;
+        }
+
+        function onPlayerWin(pn){
+            if(roundLocked) return; roundLocked=true;
+            if(pn===1){p1Wins++; document.getElementById('tpP1S').textContent=p1Wins; g2.lock('Player 1'); g1.setWinner();}
+            else{p2Wins++; document.getElementById('tpP2S').textContent=p2Wins; g1.lock('Player 2'); g2.setWinner();}
+            var banner=document.getElementById('roundBanner');
+            banner.className='round-banner show '+(pn===1?'p1-win':'p2-win');
+            banner.innerHTML='<i class="fas fa-crown"></i> Player '+pn+' wins this round! <i class="fas fa-crown"></i>';
+            document.getElementById('tpNext').style.display='';
+            burstConfetti();
+        }
+
+        function tpReset(){if(!roundLocked) loadTP(currentIdx);}
+        function tpNext(){if(currentIdx<TOTAL-1) loadTP(currentIdx+1); else showChampion();}
+
+        function showChampion(){
+            g1.destroy(); g2.destroy();
+            document.getElementById('champP1N').textContent=p1Wins;
+            document.getElementById('champP2N').textContent=p2Wins;
+            var p1c=document.getElementById('champP1C'), p2c=document.getElementById('champP2C');
+            p1c.classList.remove('winner-card'); p2c.classList.remove('winner-card');
+            var title, msg;
+            if(p1Wins>p2Wins){
+                title='Player 1 is the Champion!'; p1c.classList.add('winner-card');
+                msg='Player 1 dominated with '+p1Wins+' wins!';
+            } else if(p2Wins>p1Wins){
+                title='Player 2 is the Champion!'; p2c.classList.add('winner-card');
+                msg='Player 2 dominated with '+p2Wins+' wins!';
             } else {
-                showGameOver();
+                title="It's a Tie!"; msg='Both players won '+p1Wins+' rounds each! Amazing!';
             }
+            document.getElementById('champTitle').textContent=title;
+            document.getElementById('champMsg').textContent=msg;
+            showScreen('championScreen'); burstConfetti();
         }
 
-        /* ===== Game Over ===== */
-        function showGameOver() {
-            if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-            gameArea.style.display = 'none';
-            gameOverPanel.classList.add('show');
-
-            const pct = Math.round((score / SENTENCES.length) * 100);
-            document.getElementById('goScore').innerHTML =
-                'You scored <span class="big">' + score + '</span> out of <span class="big">' + SENTENCES.length + '</span>';
-
-            let msg;
-            if (pct === 100)     msg = 'Perfect score! You are a sentence master!';
-            else if (pct >= 80)  msg = 'Excellent work! Almost perfect!';
-            else if (pct >= 60)  msg = 'Good job! Keep practicing!';
-            else if (pct >= 40)  msg = 'Nice try! You can do better!';
-            else                 msg = 'Keep learning! Practice makes perfect!';
-            document.getElementById('goMsg').textContent = msg;
-
-            if (pct >= 60) burstConfetti();
+        function backToMenu(){
+            if(g1){g1.destroy(); g1=null;}
+            if(g2){g2.destroy(); g2=null;}
+            roundLocked=false; showScreen('modeSelect');
         }
 
-        /* ===== Restart ===== */
-        function restartGame() {
-            curIdx = 0;
-            score = 0;
-            scoreEl.textContent = '0';
-            gameArea.style.display = '';
-            gameOverPanel.classList.remove('show');
-            loadQuestion(0);
-        }
+        document.getElementById('btnSolo').addEventListener('click', startSingle);
+        document.getElementById('btnRace').addEventListener('click', startTwo);
+        document.getElementById('spMenu').addEventListener('click', backToMenu);
+        document.getElementById('spCheck').addEventListener('click', spCheck);
+        document.getElementById('spReset').addEventListener('click', spReset);
+        document.getElementById('spNext').addEventListener('click', spNext);
+        document.getElementById('spAgain').addEventListener('click', startSingle);
+        document.getElementById('spEndMenu').addEventListener('click', backToMenu);
+        document.getElementById('tpMenu').addEventListener('click', backToMenu);
+        document.getElementById('p1Check').addEventListener('click', function(){if(g1) g1.check(SENTENCES[currentIdx].text);});
+        document.getElementById('p2Check').addEventListener('click', function(){if(g2) g2.check(SENTENCES[currentIdx].text);});
+        document.getElementById('tpReset').addEventListener('click', tpReset);
+        document.getElementById('tpNext').addEventListener('click', tpNext);
+        document.getElementById('champAgain').addEventListener('click', startTwo);
+        document.getElementById('champMenu').addEventListener('click', backToMenu);
 
-        /* ===== Confetti ===== */
-        function burstConfetti() {
-            const colors = ['#FFB3BA','#BAFFC9','#BAE1FF','#FFF3BA','#E4BAFF','#FFD9BA','#FF9AA2','#8FE6A0','#8ECDFF','#CF9FFF'];
-            for (let i = 0; i < 45; i++) {
-                const bit = document.createElement('div');
-                bit.className = 'confetti-bit';
-                const size = 6 + Math.random() * 9;
-                bit.style.width  = size + 'px';
-                bit.style.height = size + 'px';
-                bit.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
-                bit.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                bit.style.left = (5 + Math.random() * 90) + '%';
-                bit.style.top  = '-12px';
-                bit.style.setProperty('--delay', (Math.random() * 0.6) + 's');
-                bit.style.setProperty('--dur', (1.2 + Math.random() * 1) + 's');
-                bit.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px');
-                bit.style.setProperty('--spin', (400 + Math.random() * 500) + 'deg');
-                confettiLayer.appendChild(bit);
-                setTimeout(() => bit.remove(), 2800);
+        document.addEventListener('keydown', function(e){
+            if(e.key==='Enter'){if(gameMode==='single') spCheck();}
+            if(e.key==='r'||e.key==='R'){if(gameMode==='single') spReset(); else tpReset();}
+            if(e.key==='n'||e.key==='N'||e.key==='ArrowRight'){
+                if(gameMode==='single') spNext();
+                else if(roundLocked) tpNext();
             }
-        }
-
-        /* ===== Wire buttons ===== */
-        btnCheck.addEventListener('click', checkAnswer);
-        btnReset.addEventListener('click', resetQuestion);
-        btnNext.addEventListener('click', nextQuestion);
-        btnAgain.addEventListener('click', restartGame);
-
-        /* ===== Keyboard support ===== */
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') checkAnswer();
-            if (e.key === 'r' || e.key === 'R') resetQuestion();
-            if (e.key === 'n' || e.key === 'N' || e.key === 'ArrowRight') nextQuestion();
         });
-
-        /* ===== Init ===== */
-        loadQuestion(0);
 
     })();
     </script>

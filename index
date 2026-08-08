@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Arrange the Sentence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #FFF8F0;
+            --fg: #4A3728;
+            --muted: #9B8B7A;
+            --accent: #FF6B6B;
+            --accent2: #4ECDC4;
+            --card: #FFFFFF;
+            --border: #E8DDD0;
+            --bank-bg: #E8F4FD;
+            --bank-border: #A8CCE8;
+            --sentence-bg: #FFF9E6;
+            --sentence-border: #E8D080;
+            --success: #6BCB77;
+            --error: #FF6B6B;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg);
+            background-image: radial-gradient(circle, #E8DDD0 1px, transparent 1px);
+            background-size: 28px 28px;
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Decorative background blobs */
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.07;
+            filter: blur(2px);
+        }
+        .bg-blob-1 { width: 320px; height: 320px; background: #FF9AA2; top: -100px; right: -80px; animation: blobDrift 22s ease-in-out infinite; }
+        .bg-blob-2 { width: 240px; height: 240px; background: #BAE1FF; bottom: -60px; left: -50px; animation: blobDrift 17s ease-in-out infinite reverse; }
+        .bg-blob-3 { width: 180px; height: 180px; background: #BAFFC9; top: 45%; right: -40px; animation: blobDrift 19s ease-in-out infinite 4s; }
+        .bg-blob-4 { width: 140px; height: 140px; background: #FFFFBA; top: 20%; left: -30px; animation: blobDrift 15s ease-in-out infinite 2s; }
+
+        @keyframes blobDrift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(25px, -35px) scale(1.06); }
+            66% { transform: translate(-18px, 25px) scale(0.94); }
+        }
+
+        /* Main container */
+        .game-container {
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header banner */
+        .header {
+            background: linear-gradient(135deg, #FF9AA2 0%, #FFB7B2 45%, #FFDAC1 100%);
+            border-radius: 24px;
+            padding: 22px 30px;
+            margin-bottom: 22px;
+            box-shadow: 0 6px 24px rgba(255, 154, 162, 0.3);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -35px; right: -35px;
+            width: 130px; height: 130px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -25px; left: 28%;
+            width: 90px; height: 90px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 28px;
+            color: #fff;
+            text-shadow: 2px 2px 6px rgba(180,80,80,0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        .title .star-icon { font-size: 22px; animation: starPulse 3s ease-in-out infinite; }
+        @keyframes starPulse {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(12deg) scale(1.18); }
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+        .stat-badge {
+            background: rgba(255,255,255,0.3);
+            backdrop-filter: blur(4px);
+            border-radius: 14px;
+            padding: 8px 18px;
+            font-weight: 700;
+            font-size: 15px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stat-badge i { font-size: 15px; }
+        .score-value { color: #FFF176; font-size: 19px; }
+
+        /* Section labels */
+        .section-label {
+            font-family: 'Fredoka One', cursive;
+            font-size: 17px;
+            color: var(--muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-label i { font-size: 15px; }
+
+        /* Word Bank */
+        .word-bank {
+            position: relative;
+            height: 220px;
+            background: linear-gradient(180deg, #EAF5FD 0%, #D6EDF9 100%);
+            border: 3px dashed var(--bank-border);
+            border-radius: 22px;
+            overflow: hidden;
+            margin-bottom: 6px;
+            box-shadow: inset 0 3px 12px rgba(0,0,0,0.04);
+        }
+        .bank-empty-msg {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 700;
+            color: var(--bank-border);
+            font-size: 15px;
+            pointer-events: none;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+        .bank-empty-msg.visible { display: flex; }
+
+        /* Word cards */
+        .word-card {
+            position: absolute;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 22px;
+            border-radius: 16px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            font-size: 17px;
+            cursor: grab;
+            user-select: none;
+            -webkit-user-select: none;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border: 2.5px solid;
+            white-space: nowrap;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            z-index: 1;
+            touch-action: none;
+            will-change: left, top;
+        }
+        .word-card:hover {
+            transform: scale(1.06);
+            box-shadow: 0 5px 18px rgba(0,0,0,0.15);
+        }
+        .word-card.dragging {
+            cursor: grabbing;
+            transform: scale(1.1) !important;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.25) !important;
+            z-index: 10000 !important;
+            transition: none !important;
+        }
+
+        /* Word card in sentence area */
+        .word-card.placed {
+            position: relative !important;
+            left: auto !important;
+            top: auto !important;
+        }
+        .word-card.placed:hover {
+            transform: scale(1.05);
+        }
+        .word-card.placed .return-x {
+            display: none;
+            position: absolute;
+            top: -9px; right: -9px;
+            width: 22px; height: 22px;
+            background: var(--error);
+            color: #fff;
+            border-radius: 50%;
+            font-size: 11px;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(255,107,107,0.4);
+            cursor: pointer;
+            border: 2px solid #fff;
+        }
+        .word-card.placed:hover .return-x { display: flex; }
+
+        /* Hint text */
+        .hint-text {
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+            margin: 6px 0 10px;
+            font-weight: 600;
+        }
+        .hint-text i { margin-right: 5px; }
+
+        /* Sentence drop zone */
+        .sentence-area {
+            min-height: 80px;
+            background:
+                repeating-linear-gradient(
+                    transparent, transparent 35px,
+                    rgba(224,200,128,0.18) 35px, rgba(224,200,128,0.18) 36px
+                ),
+                linear-gradient(180deg, #FFFAE6 0%, #FFF3CC 100%);
+            border: 3px dashed var(--sentence-border);
+            border-radius: 22px;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 22px;
+            box-shadow: inset 0 3px 12px rgba(0,0,0,0.04);
+            transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+            position: relative;
+        }
+        .sentence-area.drag-hover {
+            border-color: var(--accent2);
+            background:
+                repeating-linear-gradient(
+                    transparent, transparent 35px,
+                    rgba(78,205,196,0.1) 35px, rgba(78,205,196,0.1) 36px
+                ),
+                linear-gradient(180deg, #E6FFF9 0%, #D4FFF0 100%);
+            box-shadow: inset 0 3px 12px rgba(78,205,196,0.1), 0 0 25px rgba(78,205,196,0.12);
+        }
+        .sentence-area.result-correct {
+            border-color: var(--success) !important;
+            border-style: solid !important;
+            box-shadow: 0 0 25px rgba(107,203,119,0.25), inset 0 3px 12px rgba(107,203,119,0.08) !important;
+        }
+        .sentence-area.result-wrong {
+            animation: areaShake 0.5s ease;
+            border-color: var(--error) !important;
+        }
+        @keyframes areaShake {
+            0%, 100% { transform: translateX(0); }
+            15% { transform: translateX(-7px); }
+            30% { transform: translateX(7px); }
+            50% { transform: translateX(-5px); }
+            70% { transform: translateX(5px); }
+            85% { transform: translateX(-2px); }
+        }
+
+        .sentence-placeholder {
+            color: var(--sentence-border);
+            font-weight: 600;
+            font-size: 15px;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Insert indicator for reordering */
+        .insert-bar {
+            width: 4px;
+            height: 42px;
+            background: var(--accent2);
+            border-radius: 3px;
+            animation: barPulse 0.7s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+        @keyframes barPulse {
+            0%, 100% { opacity: 0.4; transform: scaleY(0.75); }
+            50% { opacity: 1; transform: scaleY(1); }
+        }
+
+        /* Buttons */
+        .controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+        .btn {
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            font-size: 16px;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+            outline: none;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(0,0,0,0.14); }
+        .btn:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .btn:focus-visible { box-shadow: 0 0 0 3px rgba(78,205,196,0.5), 0 4px 14px rgba(0,0,0,0.1); }
+        .btn-check { background: linear-gradient(135deg, #6BCB77, #4CAF50); color: #fff; }
+        .btn-reset { background: linear-gradient(135deg, #FFB74D, #FFA726); color: #fff; }
+        .btn-next  { background: linear-gradient(135deg, #64B5F6, #42A5F5); color: #fff; }
+
+        /* Feedback */
+        .feedback-zone {
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .fb-msg {
+            padding: 14px 26px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            animation: fbSlideIn 0.35s ease-out;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+        }
+        @keyframes fbSlideIn {
+            0% { transform: translateY(12px) scale(0.94); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .fb-correct {
+            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            color: #2E7D32;
+            border: 2px solid #A5D6A7;
+        }
+        .fb-wrong {
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+            color: #C62828;
+            border: 2px solid #EF9A9A;
+        }
+        .fb-hint {
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 600;
+            animation: fbSlideIn 0.4s ease-out 0.1s both;
+        }
+        .fb-hint span { color: var(--fg); font-weight: 800; }
+
+        /* Confetti */
+        .confetti-layer {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        .confetti-bit {
+            position: absolute;
+            animation: confettiDrop var(--dur, 1.6s) ease-out var(--delay, 0s) forwards;
+            opacity: 0;
+        }
+        @keyframes confettiDrop {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            30% { opacity: 1; }
+            100% { transform: translateY(calc(100vh + 40px)) translateX(var(--dx, 0px)) rotate(var(--spin, 600deg)) scale(0.4); opacity: 0; }
+        }
+
+        /* Game over overlay */
+        .game-over-panel {
+            display: none;
+            text-align: center;
+            padding: 50px 24px;
+            animation: fbSlideIn 0.5s ease-out;
+        }
+        .game-over-panel.show { display: block; }
+        .go-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 38px;
+            background: linear-gradient(135deg, #FF6B6B, #FFB74D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 18px;
+        }
+        .go-score { font-size: 22px; font-weight: 700; margin-bottom: 10px; line-height: 1.5; }
+        .go-score .big { font-size: 34px; color: var(--accent); }
+        .go-msg { font-size: 16px; color: var(--muted); margin-bottom: 28px; font-weight: 600; }
+        .btn-again { background: linear-gradient(135deg, #FF9AA2, #FF6B6B); color: #fff; font-size: 17px; padding: 14px 36px; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .game-container { padding: 14px; }
+            .header { padding: 16px 20px; border-radius: 18px; }
+            .title { font-size: 22px; }
+            .stat-badge { padding: 6px 13px; font-size: 13px; }
+            .word-bank { height: 190px; }
+            .word-card { padding: 8px 16px; font-size: 15px; border-radius: 13px; }
+            .sentence-area { padding: 16px; gap: 10px; min-height: 72px; }
+            .btn { padding: 10px 22px; font-size: 14px; border-radius: 13px; }
+            .go-title { font-size: 30px; }
+        }
+        @media (max-width: 480px) {
+            .title { font-size: 18px; gap: 6px; }
+            .title .star-icon { font-size: 16px; }
+            .word-bank { height: 165px; }
+            .word-card { padding: 7px 13px; font-size: 14px; border-radius: 11px; }
+            .header-stats { gap: 8px; }
+            .stat-badge { padding: 5px 10px; font-size: 12px; gap: 5px; }
+            .score-value { font-size: 16px; }
+            .controls { gap: 8px; }
+            .btn { padding: 9px 16px; font-size: 13px; gap: 5px; }
+            .sentence-area { padding: 14px 12px; gap: 8px; }
+            .go-title { font-size: 26px; }
+            .go-score { font-size: 18px; }
+            .go-score .big { font-size: 28px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background decorative blobs -->
+    <div class="bg-blob bg-blob-1"></div>
+    <div class="bg-blob bg-blob-2"></div>
+    <div class="bg-blob bg-blob-3"></div>
+    <div class="bg-blob bg-blob-4"></div>
+
+    <!-- Confetti layer -->
+    <div class="confetti-layer" id="confettiLayer"></div>
+
+    <div class="game-container">
+        <!-- Header -->
+        <header class="header" role="banner">
+            <div class="title">
+                <i class="fas fa-star star-icon"></i>
+                Arrange the Sentence
+                <i class="fas fa-star star-icon"></i>
+            </div>
+            <div class="header-stats">
+                <div class="stat-badge" aria-label="Question number">
+                    <i class="fas fa-book-open"></i>
+                    <span id="qCounter">1 / 20</span>
+                </div>
+                <div class="stat-badge" aria-label="Score">
+                    <i class="fas fa-trophy"></i>
+                    Score: <span class="score-value" id="scoreEl">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Active game area -->
+        <main id="gameArea">
+            <div class="section-label"><i class="fas fa-palette"></i> Word Bank</div>
+            <div class="word-bank" id="wordBank" role="region" aria-label="Word bank with floating words">
+                <div class="bank-empty-msg" id="bankEmptyMsg">
+                    <i class="fas fa-check-circle"></i> All words placed!
+                </div>
+            </div>
+
+            <div class="hint-text">
+                <i class="fas fa-hand-point-down"></i>
+                Drag words into the area below to build the sentence
+            </div>
+
+            <div class="section-label"><i class="fas fa-pen-fancy"></i> Your Sentence</div>
+            <div class="sentence-area" id="sentenceArea" role="region" aria-label="Sentence drop zone"></div>
+
+            <div class="controls">
+                <button class="btn btn-check" id="btnCheck" aria-label="Check answer">
+                    <i class="fas fa-check-circle"></i> Check
+                </button>
+                <button class="btn btn-reset" id="btnReset" aria-label="Reset question">
+                    <i class="fas fa-redo-alt"></i> Reset
+                </button>
+                <button class="btn btn-next" id="btnNext" aria-label="Next question">
+                    <i class="fas fa-arrow-right"></i> Next
+                </button>
+            </div>
+
+            <div class="feedback-zone" id="feedbackZone"></div>
+        </main>
+
+        <!-- Game over panel -->
+        <div class="game-over-panel" id="gameOverPanel">
+            <div class="go-title"><i class="fas fa-award"></i> Great Job!</div>
+            <div class="go-score" id="goScore"></div>
+            <div class="go-msg" id="goMsg"></div>
+            <button class="btn btn-again" id="btnAgain" aria-label="Play again">
+                <i class="fas fa-play"></i> Play Again
+            </button>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        /* ===== Sentence Data (20 simple present tense) ===== */
+        const SENTENCES = [
+            "The cat sleeps on the mat",
+            "She reads a book daily",
+            "They play in the park",
+            "He drinks water every morning",
+            "We eat lunch at noon",
+            "The sun rises in the east",
+            "Birds fly in the sky",
+            "I walk to school daily",
+            "Dogs bark at strangers",
+            "She sings a nice song",
+            "The baby cries for milk",
+            "He writes a short letter",
+            "We watch TV every evening",
+            "The flower blooms in spring",
+            "She cooks tasty dinner",
+            "Children love to play",
+            "The teacher teaches well",
+            "He runs very fast",
+            "I brush my teeth daily",
+            "The fish swims in water"
+        ];
+
+        /* Card color palette — soft pastels with readable text */
+        const PALETTE = [
+            { bg:'#FFB3BA', bd:'#FF9AA2', tx:'#7A2E2E' },
+            { bg:'#BAFFC9', bd:'#8FE6A0', tx:'#1E5E1E' },
+            { bg:'#BAE1FF', bd:'#8ECDFF', tx:'#1E4A5E' },
+            { bg:'#FFF3BA', bd:'#FFE88A', tx:'#5E551E' },
+            { bg:'#E4BAFF', bd:'#CF9FFF', tx:'#441E5E' },
+            { bg:'#FFD9BA', bd:'#FFC48A', tx:'#5E351E' },
+            { bg:'#BAF2FF', bd:'#8EE8FF', tx:'#1E555E' },
+            { bg:'#C7F9CC', bd:'#9AF0A8', tx:'#1E5E35' },
+            { bg:'#D9BBFF', bd:'#C49FFF', tx:'#351E5E' },
+            { bg:'#FFDAB9', bd:'#FFC8A0', tx:'#5E451E' },
+        ];
+
+        /* ===== State ===== */
+        let curIdx = 0;
+        let score = 0;
+        let isLocked = false;       // true after correct answer
+        let floaters = [];          // { el, x, y, vx, vy }
+        let rafId = null;
+        let drag = null;            // current drag state
+
+        /* ===== DOM refs ===== */
+        const wordBank      = document.getElementById('wordBank');
+        const bankEmptyMsg  = document.getElementById('bankEmptyMsg');
+        const sentenceArea   = document.getElementById('sentenceArea');
+        const feedbackZone   = document.getElementById('feedbackZone');
+        const qCounter       = document.getElementById('qCounter');
+        const scoreEl        = document.getElementById('scoreEl');
+        const gameArea       = document.getElementById('gameArea');
+        const gameOverPanel  = document.getElementById('gameOverPanel');
+        const confettiLayer  = document.getElementById('confettiLayer');
+        const btnCheck       = document.getElementById('btnCheck');
+        const btnReset       = document.getElementById('btnReset');
+        const btnNext        = document.getElementById('btnNext');
+        const btnAgain       = document.getElementById('btnAgain');
+
+        /* ===== Helpers ===== */
+        function shuffle(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function evtPos(e) {
+            if (e.touches && e.touches.length) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            if (e.changedTouches && e.changedTouches.length) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+            return { x: e.clientX, y: e.clientY };
+        }
+
+        function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+
+        /* ===== Load a question ===== */
+        function loadQuestion(idx) {
+            if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+            floaters = [];
+            drag = null;
+            isLocked = false;
+
+            // Clear word bank (keep empty message reference)
+            wordBank.querySelectorAll('.word-card').forEach(c => c.remove());
+            sentenceArea.innerHTML = '';
+            feedbackZone.innerHTML = '';
+            bankEmptyMsg.classList.remove('visible');
+            sentenceArea.classList.remove('result-correct', 'result-wrong', 'drag-hover');
+
+            qCounter.textContent = (idx + 1) + ' / ' + SENTENCES.length;
+
+            const words = shuffle(SENTENCES[idx].split(' '));
+            const bankRect = wordBank.getBoundingClientRect();
+
+            words.forEach((word, i) => {
+                const card = makeCard(word, i);
+                wordBank.appendChild(card);
+
+                // Measure then position randomly
+                const cr = card.getBoundingClientRect();
+                const maxX = Math.max(0, bankRect.width - cr.width - 4);
+                const maxY = Math.max(0, bankRect.height - cr.height - 4);
+                const x = Math.random() * maxX;
+                const y = Math.random() * maxY;
+                card.style.left = x + 'px';
+                card.style.top  = y + 'px';
+
+                // Random speed & direction — each word unique
+                const speed = 0.4 + Math.random() * 1.4;
+                const angle = Math.random() * Math.PI * 2;
+
+                floaters.push({
+                    el: card, x, y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed
+                });
+            });
+
+            refreshPlaceholder();
+            refreshBankEmpty();
+            startLoop();
+        }
+
+        /* Create a word card element */
+        function makeCard(word, colorIdx) {
+            const c = document.createElement('div');
+            c.className = 'word-card';
+            c.textContent = word;
+            c.setAttribute('data-word', word);
+
+            const p = PALETTE[colorIdx % PALETTE.length];
+            c.style.backgroundColor = p.bg;
+            c.style.borderColor = p.bd;
+            c.style.color = p.tx;
+
+            // Small X button (visible on hover in sentence area)
+            const xBtn = document.createElement('div');
+            xBtn.className = 'return-x';
+            xBtn.innerHTML = '<i class="fas fa-times" style="font-size:10px"></i>';
+            xBtn.addEventListener('pointerdown', function(ev) {
+                ev.stopPropagation();
+                if (isLocked) return;
+                returnCardToBank(c);
+            });
+            c.appendChild(xBtn);
+
+            // Drag start
+            c.addEventListener('pointerdown', function(ev) {
+                if (isLocked) return;
+                beginDrag(ev, c);
+            });
+
+            return c;
+        }
+
+        /* ===== Floating animation loop ===== */
+        function startLoop() {
+            function tick() {
+                const br = wordBank.getBoundingClientRect();
+                for (let i = 0; i < floaters.length; i++) {
+                    const f = floaters[i];
+                    f.x += f.vx;
+                    f.y += f.vy;
+
+                    const el = f.el;
+                    const w = el.offsetWidth;
+                    const h = el.offsetHeight;
+
+                    // Bounce off walls
+                    if (f.x <= 0)            { f.x = 0;            f.vx = Math.abs(f.vx); }
+                    if (f.x >= br.width - w) { f.x = br.width - w; f.vx = -Math.abs(f.vx); }
+                    if (f.y <= 0)            { f.y = 0;            f.vy = Math.abs(f.vy); }
+                    if (f.y >= br.height - h){ f.y = br.height - h; f.vy = -Math.abs(f.vy); }
+
+                    el.style.left = f.x + 'px';
+                    el.style.top  = f.y + 'px';
+                }
+                rafId = requestAnimationFrame(tick);
+            }
+            rafId = requestAnimationFrame(tick);
+        }
+
+        /* ===== Drag & Drop ===== */
+        function beginDrag(e, card) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const pos = evtPos(e);
+            const rect = card.getBoundingClientRect();
+            const fromSentence = card.classList.contains('placed');
+
+            // Remove from its current context
+            if (fromSentence) {
+                card.classList.remove('placed');
+                refreshPlaceholder();
+            } else {
+                floaters = floaters.filter(f => f.el !== card);
+                refreshBankEmpty();
+            }
+
+            // Switch to fixed positioning and attach to body
+            card.style.position = 'fixed';
+            card.style.left = rect.left + 'px';
+            card.style.top  = rect.top + 'px';
+            card.style.zIndex = '10000';
+            card.classList.add('dragging');
+            document.body.appendChild(card);
+
+            drag = {
+                el: card,
+                offX: pos.x - rect.left,
+                offY: pos.y - rect.top,
+                startX: pos.x,
+                startY: pos.y,
+                fromSentence: fromSentence,
+                moved: false
+            };
+
+            card.setPointerCapture(e.pointerId);
+        }
+
+        function onPointerMove(e) {
+            if (!drag) return;
+            e.preventDefault();
+            const pos = evtPos(e);
+            drag.el.style.left = (pos.x - drag.offX) + 'px';
+            drag.el.style.top  = (pos.y - drag.offY) + 'px';
+
+            if (dist(pos, { x: drag.startX, y: drag.startY }) > 5) {
+                drag.moved = true;
+            }
+
+            // Highlight sentence area if hovering
+            const sr = sentenceArea.getBoundingClientRect();
+            const over = pos.x >= sr.left && pos.x <= sr.right && pos.y >= sr.top && pos.y <= sr.bottom;
+            sentenceArea.classList.toggle('drag-hover', over);
+
+            // Show insert bar if reordering within sentence
+            clearInsertBar();
+            if (over && drag.fromSentence && drag.moved) {
+                showInsertBar(pos.x);
+            }
+        }
+
+        function onPointerUp(e) {
+            if (!drag) return;
+            e.preventDefault();
+
+            const card = drag.el;
+            card.classList.remove('dragging');
+            sentenceArea.classList.remove('drag-hover');
+            clearInsertBar();
+
+            const pos = evtPos(e);
+            const sr = sentenceArea.getBoundingClientRect();
+            const over = pos.x >= sr.left && pos.x <= sr.right && pos.y >= sr.top && pos.y <= sr.bottom;
+
+            // Click (no significant move) on placed card → return to bank
+            if (!drag.moved && drag.fromSentence) {
+                returnCardToBank(card);
+                drag = null;
+                return;
+            }
+
+            if (over) {
+                // Place into sentence area
+                card.style.position = '';
+                card.style.left = '';
+                card.style.top = '';
+                card.style.zIndex = '';
+                card.classList.add('placed');
+
+                const insertIdx = calcInsertIndex(pos.x);
+                const siblings = [...sentenceArea.querySelectorAll('.word-card.placed')];
+                if (insertIdx >= siblings.length) {
+                    sentenceArea.appendChild(card);
+                } else {
+                    sentenceArea.insertBefore(card, siblings[insertIdx]);
+                }
+                refreshPlaceholder();
+            } else {
+                // Return to word bank
+                returnCardToBank(card);
+            }
+
+            drag = null;
+        }
+
+        function returnCardToBank(card) {
+            const br = wordBank.getBoundingClientRect();
+            const cr = card.getBoundingClientRect();
+            card.style.position = 'absolute';
+            let x = cr.left - br.left;
+            let y = cr.top - br.top;
+            x = Math.max(0, Math.min(x, br.width - cr.width - 2));
+            y = Math.max(0, Math.min(y, br.height - cr.height - 2));
+            card.style.left = x + 'px';
+            card.style.top  = y + 'px';
+            card.style.zIndex = '';
+            card.classList.remove('placed', 'dragging');
+            wordBank.appendChild(card);
+
+            const speed = 0.4 + Math.random() * 1.4;
+            const angle = Math.random() * Math.PI * 2;
+            floaters.push({ el: card, x, y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed });
+            refreshBankEmpty();
+            refreshPlaceholder();
+        }
+
+        function calcInsertIndex(cursorX) {
+            const cards = [...sentenceArea.querySelectorAll('.word-card.placed')];
+            for (let i = 0; i < cards.length; i++) {
+                const r = cards[i].getBoundingClientRect();
+                if (cursorX < r.left + r.width / 2) return i;
+            }
+            return cards.length;
+        }
+
+        function showInsertBar(cursorX) {
+            const idx = calcInsertIndex(cursorX);
+            const bar = document.createElement('div');
+            bar.className = 'insert-bar';
+            bar.id = 'insertBar';
+            const siblings = [...sentenceArea.querySelectorAll('.word-card.placed')];
+            if (idx >= siblings.length) {
+                sentenceArea.appendChild(bar);
+            } else {
+                sentenceArea.insertBefore(bar, siblings[idx]);
+            }
+        }
+
+        function clearInsertBar() {
+            const b = document.getElementById('insertBar');
+            if (b) b.remove();
+        }
+
+        /* Global pointer listeners */
+        document.addEventListener('pointermove', onPointerMove, { passive: false });
+        document.addEventListener('pointerup', onPointerUp);
+        document.addEventListener('pointercancel', onPointerUp);
+
+        /* ===== UI refreshers ===== */
+        function refreshPlaceholder() {
+            const has = sentenceArea.querySelector('.word-card.placed');
+            if (!has) {
+                if (!sentenceArea.querySelector('.sentence-placeholder')) {
+                    const ph = document.createElement('div');
+                    ph.className = 'sentence-placeholder';
+                    ph.innerHTML = '<i class="fas fa-pen-fancy"></i> Drop words here...';
+                    sentenceArea.appendChild(ph);
+                }
+            } else {
+                const ph = sentenceArea.querySelector('.sentence-placeholder');
+                if (ph) ph.remove();
+            }
+        }
+
+        function refreshBankEmpty() {
+            bankEmptyMsg.classList.toggle('visible', floaters.length === 0);
+        }
+
+        /* ===== Check answer ===== */
+        function checkAnswer() {
+            if (isLocked) return;
+            const placed = [...sentenceArea.querySelectorAll('.word-card.placed')];
+            if (placed.length === 0) {
+                feedbackZone.innerHTML =
+                    '<div class="fb-msg fb-wrong"><i class="fas fa-exclamation-circle"></i> Place some words first!</div>';
+                return;
+            }
+
+            const userSent = placed.map(c => c.dataset.word).join(' ');
+            const correct  = SENTENCES[curIdx];
+
+            if (userSent === correct) {
+                // Correct!
+                isLocked = true;
+                score++;
+                scoreEl.textContent = score;
+                sentenceArea.classList.add('result-correct');
+                feedbackZone.innerHTML =
+                    '<div class="fb-msg fb-correct"><i class="fas fa-check-circle"></i> Correct! Well done!</div>';
+                // Stop all floating
+                floaters.forEach(f => { f.vx = 0; f.vy = 0; });
+                burstConfetti();
+            } else {
+                // Incorrect — show hint, allow retry
+                sentenceArea.classList.add('result-wrong');
+                setTimeout(() => sentenceArea.classList.remove('result-wrong'), 550);
+                feedbackZone.innerHTML =
+                    '<div class="fb-msg fb-wrong"><i class="fas fa-times-circle"></i> Not quite right. Try again!</div>' +
+                    '<div class="fb-hint">Correct answer: <span>' + correct + '</span></div>';
+            }
+        }
+
+        /* ===== Reset ===== */
+        function resetQuestion() {
+            loadQuestion(curIdx);
+        }
+
+        /* ===== Next ===== */
+        function nextQuestion() {
+            if (curIdx < SENTENCES.length - 1) {
+                curIdx++;
+                loadQuestion(curIdx);
+            } else {
+                showGameOver();
+            }
+        }
+
+        /* ===== Game Over ===== */
+        function showGameOver() {
+            if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+            gameArea.style.display = 'none';
+            gameOverPanel.classList.add('show');
+
+            const pct = Math.round((score / SENTENCES.length) * 100);
+            document.getElementById('goScore').innerHTML =
+                'You scored <span class="big">' + score + '</span> out of <span class="big">' + SENTENCES.length + '</span>';
+
+            let msg;
+            if (pct === 100)     msg = 'Perfect score! You are a sentence master!';
+            else if (pct >= 80)  msg = 'Excellent work! Almost perfect!';
+            else if (pct >= 60)  msg = 'Good job! Keep practicing!';
+            else if (pct >= 40)  msg = 'Nice try! You can do better!';
+            else                 msg = 'Keep learning! Practice makes perfect!';
+            document.getElementById('goMsg').textContent = msg;
+
+            if (pct >= 60) burstConfetti();
+        }
+
+        /* ===== Restart ===== */
+        function restartGame() {
+            curIdx = 0;
+            score = 0;
+            scoreEl.textContent = '0';
+            gameArea.style.display = '';
+            gameOverPanel.classList.remove('show');
+            loadQuestion(0);
+        }
+
+        /* ===== Confetti ===== */
+        function burstConfetti() {
+            const colors = ['#FFB3BA','#BAFFC9','#BAE1FF','#FFF3BA','#E4BAFF','#FFD9BA','#FF9AA2','#8FE6A0','#8ECDFF','#CF9FFF'];
+            for (let i = 0; i < 45; i++) {
+                const bit = document.createElement('div');
+                bit.className = 'confetti-bit';
+                const size = 6 + Math.random() * 9;
+                bit.style.width  = size + 'px';
+                bit.style.height = size + 'px';
+                bit.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+                bit.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                bit.style.left = (5 + Math.random() * 90) + '%';
+                bit.style.top  = '-12px';
+                bit.style.setProperty('--delay', (Math.random() * 0.6) + 's');
+                bit.style.setProperty('--dur', (1.2 + Math.random() * 1) + 's');
+                bit.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px');
+                bit.style.setProperty('--spin', (400 + Math.random() * 500) + 'deg');
+                confettiLayer.appendChild(bit);
+                setTimeout(() => bit.remove(), 2800);
+            }
+        }
+
+        /* ===== Wire buttons ===== */
+        btnCheck.addEventListener('click', checkAnswer);
+        btnReset.addEventListener('click', resetQuestion);
+        btnNext.addEventListener('click', nextQuestion);
+        btnAgain.addEventListener('click', restartGame);
+
+        /* ===== Keyboard support ===== */
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') checkAnswer();
+            if (e.key === 'r' || e.key === 'R') resetQuestion();
+            if (e.key === 'n' || e.key === 'N' || e.key === 'ArrowRight') nextQuestion();
+        });
+
+        /* ===== Init ===== */
+        loadQuestion(0);
+
+    })();
+    </script>
+</body>
+</html>

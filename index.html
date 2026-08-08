@@ -99,13 +99,13 @@
         .word-card.punct{font-size:22px;padding:9px 14px}
         .word-card:hover{transform:scale(1.06);box-shadow:0 5px 18px rgba(0,0,0,.15)}
         .word-card.dragging{cursor:grabbing;transform:scale(1.1)!important;box-shadow:0 10px 35px rgba(0,0,0,.25)!important;z-index:10000!important;transition:none!important}
-        .word-card.placed{position:relative!important;left:auto!important;top:auto!important}
+        .word-card.placed{position:relative!important;left:auto!important;top:auto!important;display:inline-flex!important;margin:0!important}
         .word-card.placed:hover{transform:scale(1.05)}
         .word-card.placed .return-x{display:none;position:absolute;top:-9px;right:-9px;width:22px;height:22px;background:var(--error);color:#fff;border-radius:50%;font-size:11px;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(255,107,107,.4);cursor:pointer;border:2px solid #fff}
         .word-card.placed:hover .return-x{display:flex}
         .hint-text{text-align:center;font-size:12px;color:var(--muted);margin:4px 0 8px;font-weight:600}
         .hint-text i{margin-right:4px}
-        .sentence-area{min-height:74px;background:repeating-linear-gradient(transparent,transparent 35px,rgba(224,200,128,.18) 35px,rgba(224,200,128,.18) 36px),linear-gradient(180deg,#FFFAE6,#FFF3CC);border:3px dashed var(--sent-bd);border-radius:20px;padding:18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-start;margin-bottom:16px;box-shadow:inset 0 3px 12px rgba(0,0,0,.04);transition:border-color .25s,background .25s,box-shadow .25s;position:relative}
+        .sentence-area{min-height:74px;background:repeating-linear-gradient(transparent,transparent 35px,rgba(224,200,128,.18) 35px,rgba(224,200,128,.18) 36px),linear-gradient(180deg,#FFFAE6,#FFF3CC);border:3px dashed var(--sent-bd);border-radius:20px;padding:18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-start;margin-bottom:16px;box-shadow:inset 0 3px 12px rgba(0,0,0,.04);transition:border-color .25s,background .25s,box-shadow .25s;position:relative;min-height:80px}
         .sentence-area.drag-hover{border-color:var(--accent2);background:repeating-linear-gradient(transparent,transparent 35px,rgba(78,205,196,.1) 35px,rgba(78,205,196,.1) 36px),linear-gradient(180deg,#E6FFF9,#D4FFF0);box-shadow:inset 0 3px 12px rgba(78,205,196,.1),0 0 25px rgba(78,205,196,.12)}
         .sentence-area.result-correct{border-color:var(--success)!important;border-style:solid!important;box-shadow:0 0 25px rgba(107,203,119,.25),inset 0 3px 12px rgba(107,203,119,.08)!important}
         .sentence-area.result-wrong{animation:ashake .5s ease;border-color:var(--error)!important}
@@ -141,7 +141,7 @@
         .vs-divider{display:flex;align-items:center;justify-content:center;padding:0 10px;font-family:'Fredoka One',cursive;font-size:26px;color:var(--muted);min-width:50px}
         .vs-divider span{background:var(--bg);border:3px solid var(--border);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px}
         .tp-bank{height:175px}
-        .tp-sentence{min-height:62px;padding:14px;gap:8px;margin-bottom:10px;display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;}
+        .tp-sentence{min-height:62px;padding:14px;gap:8px;margin-bottom:10px;display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;min-height:80px}
         .player-check-wrap{text-align:center;margin-bottom:6px}
         .player-feedback{text-align:center;min-height:40px}
         .lock-overlay{display:none;position:absolute;inset:0;background:rgba(255,255,255,.65);border-radius:20px;z-index:50;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:16px;color:var(--muted);gap:8px;pointer-events:none;flex-direction:column}
@@ -170,7 +170,6 @@
         .champ-vs{font-family:'Fredoka One',cursive;font-size:22px;color:var(--muted)}
         .champ-card.p1-card .champ-num{color:var(--p1dark)}
         .champ-card.p2-card .champ-num{color:var(--p2dark)}
-        /* Tombol Back ke Dashboard di dalam game */
         .back-dashboard-btn {
             background: linear-gradient(135deg, #AB47BC, #8E24AA);
             color: #fff;
@@ -431,7 +430,6 @@
     (function(){
         'use strict';
 
-        /* ========== SOUND ENGINE (Web Audio API — no external files) ========== */
         var audioCtx = null;
         function getAudio(){
             if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -439,7 +437,6 @@
             return audioCtx;
         }
 
-        /* Clapping sound — multiple noise bursts with bandpass filter */
         function playClap(){
             var ctx = getAudio();
             var now = ctx.currentTime;
@@ -467,12 +464,10 @@
             }
         }
 
-        /* "Huhh" wrong sound — descending noisy tone */
         function playHuhh(){
             var ctx = getAudio();
             var now = ctx.currentTime;
             var dur = 0.4;
-            /* Noise component for "h" sound */
             var nLen = Math.floor(ctx.sampleRate * dur);
             var nBuf = ctx.createBuffer(1, nLen, ctx.sampleRate);
             var nData = nBuf.getChannelData(0);
@@ -490,7 +485,6 @@
             nGain.gain.exponentialRampToValueAtTime(0.01, now + dur);
             nSrc.connect(nFilter); nFilter.connect(nGain); nGain.connect(ctx.destination);
             nSrc.start(now); nSrc.stop(now + dur);
-            /* Descending tone for "uhh" */
             var osc = ctx.createOscillator();
             osc.type = 'sawtooth';
             osc.frequency.setValueAtTime(320, now);
@@ -505,9 +499,7 @@
             osc.start(now); osc.stop(now + dur);
         }
 
-        /* ========== 40 SOAL: 10 Affirmative + 20 Negative + 10 Interrogative ========== */
         var SENTENCES = [
-            /* --- AFFIRMATIVE (10) --- */
             {text:"The cat sleeps on the mat",               type:"affirmative"},
             {text:"They play in the park",                   type:"affirmative"},
             {text:"He drinks water every morning",           type:"affirmative"},
@@ -518,8 +510,6 @@
             {text:"Dogs bark at strangers",                  type:"affirmative"},
             {text:"She sings a nice song",                   type:"affirmative"},
             {text:"The flower blooms in spring",             type:"affirmative"},
-
-            /* --- NEGATIVE (20) --- */
             {text:"She does not like spicy food",            type:"negative"},
             {text:"They do not go to school on Sunday",      type:"negative"},
             {text:"He does not eat meat at all",             type:"negative"},
@@ -540,8 +530,6 @@
             {text:"She does not write a letter every week",  type:"negative"},
             {text:"We do not play music in class",           type:"negative"},
             {text:"He does not wear a uniform on Sunday",    type:"negative"},
-
-            /* --- INTERROGATIVE (10) --- */
             {text:"Do you like ice cream ?",                 type:"interrogative"},
             {text:"Does she read books every day ?",         type:"interrogative"},
             {text:"Do they go to school by bus ?",           type:"interrogative"},
@@ -570,7 +558,6 @@
 
         var TOTAL = SENTENCES.length;
 
-        /* ========== UTILITIES ========== */
         function shuffle(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t;}return b;}
 
         function evtPos(e){
@@ -587,7 +574,6 @@
             el.innerHTML='<i class="fas '+info.icon+'"></i> '+info.label;
         }
 
-        /* ========== CONFETTI ========== */
         function burstConfetti(){
             var cols=['#FFB3BA','#BAFFC9','#BAE1FF','#FFF3BA','#E4BAFF','#FFD9BA','#FF9AA2','#8FE6A0','#8ECDFF','#CF9FFF','#FFD700','#FF6B6B'];
             var cl=document.getElementById('confettiLayer');
@@ -607,7 +593,6 @@
             }
         }
 
-        /* ========== PLAYER GAME FACTORY ========== */
         function createPlayerGame(cfg){
             var bankEl=cfg.bankEl, sentEl=cfg.sentEl, emptyEl=cfg.emptyEl, fbEl=cfg.fbEl,
                 checkBtn=cfg.checkBtn, overlayEl=cfg.overlayEl, showHint=cfg.showHint;
@@ -658,7 +643,6 @@
                 c.addEventListener('pointermove',function(ev){if(!c._dg)return; ev.preventDefault(); moveDrag(ev,c);});
                 c.addEventListener('pointerup',function(ev){if(!c._dg)return; ev.preventDefault(); endDrag(ev,c);});
                 c.addEventListener('pointercancel',function(ev){if(!c._dg)return; ev.preventDefault(); endDrag(ev,c);});
-                // Tambahkan dukungan touch untuk mobile
                 c.addEventListener('touchstart',function(ev){if(isLocked)return; var touch=ev.touches[0]; var me=new MouseEvent('pointerdown',{clientX:touch.clientX,clientY:touch.clientY}); beginDrag(me,c);},{passive:true});
                 c.addEventListener('touchmove',function(ev){if(!c._dg)return; ev.preventDefault(); var touch=ev.touches[0]; var me=new MouseEvent('pointermove',{clientX:touch.clientX,clientY:touch.clientY}); moveDrag(me,c);},{passive:false});
                 c.addEventListener('touchend',function(ev){if(!c._dg)return; ev.preventDefault(); var touch=ev.changedTouches[0]; var me=new MouseEvent('pointerup',{clientX:touch.clientX,clientY:touch.clientY}); endDrag(me,c);},{passive:false});
@@ -694,7 +678,6 @@
                 var pos=evtPos(e), sr=sentEl.getBoundingClientRect();
                 var over=pos.x>=sr.left&&pos.x<=sr.right&&pos.y>=sr.top&&pos.y<=sr.bottom;
                 
-                // FIX: Perbaiki logika untuk mengembalikan kartu
                 if(!d.moved && d.from){
                     returnToBank(card); 
                     try{card.releasePointerCapture(e.pointerId);}catch(ex){} 
@@ -704,7 +687,6 @@
                 if(over){
                     card.style.position=''; card.style.left=''; card.style.top=''; card.style.zIndex='';
                     card.classList.add('placed');
-                    // Hapus dari floaters jika ada
                     floaters=floaters.filter(function(f){return f.el!==card;});
                     var idx=calcIdx(pos.x), sibs=Array.prototype.slice.call(sentEl.querySelectorAll('.word-card.placed'));
                     if(idx>=sibs.length) sentEl.appendChild(card);
@@ -718,22 +700,19 @@
             }
 
             function returnToBank(card){
-                // FIX: Perbaiki fungsi returnToBank
                 var br=bankEl.getBoundingClientRect();
-                var cr=card.getBoundingClientRect();
                 card.style.position='absolute';
-                // Hitung posisi relatif terhadap bank
-                var x=cr.left-br.left + (cr.width/2);
-                var y=cr.top-br.top + (cr.height/2);
-                // Pastikan kartu tidak keluar dari bank
-                x=Math.max(0, Math.min(x, br.width - cr.width - 2));
-                y=Math.max(0, Math.min(y, br.height - cr.height - 2));
+                var w=card.offsetWidth || 60;
+                var h=card.offsetHeight || 40;
+                var mx=Math.max(0, br.width - w - 4);
+                var my=Math.max(0, br.height - h - 4);
+                var x=Math.random() * mx;
+                var y=Math.random() * my;
                 card.style.left=x+'px'; 
                 card.style.top=y+'px'; 
                 card.style.zIndex='';
                 card.classList.remove('placed','dragging');
                 bankEl.appendChild(card);
-                // Tambahkan kembali ke floaters jika belum ada
                 var exists=floaters.some(function(f){return f.el===card;});
                 if(!exists){
                     var spd=0.4+Math.random()*1.4, ang=Math.random()*Math.PI*2;
@@ -741,7 +720,6 @@
                 }
                 refreshBE(); 
                 refreshPH();
-                // Hapus class error jika ada
                 sentEl.classList.remove('result-wrong','result-correct');
                 fbEl.innerHTML='';
             }
@@ -773,7 +751,6 @@
                     var br=bankEl.getBoundingClientRect();
                     for(var i=0;i<floaters.length;i++){
                         var f=floaters[i]; 
-                        // Hanya gerakkan jika kartu masih di bank
                         if(f.el && f.el.parentNode === bankEl){
                             f.x+=f.vx; f.y+=f.vy;
                             var w=f.el.offsetWidth, h=f.el.offsetHeight;
@@ -799,7 +776,7 @@
                 var user=placed.map(function(c){return c.dataset.word;}).join(' ');
                 if(user===correctSent){
                     isLocked=true;
-                    checkBtn.disabled=true; // FIX: Nonaktifkan tombol check
+                    checkBtn.disabled=true;
                     floaters.forEach(function(f){f.vx=0; f.vy=0;});
                     sentEl.classList.add('result-correct');
                     fbEl.innerHTML='<div class="fb-msg fb-correct"><i class="fas fa-check-circle"></i> Correct!</div>';
@@ -843,18 +820,15 @@
             return {load:load, check:check, lock:lock, setWinner:setWinner, reset:reset, destroy:destroy, setOnWin:setOnWin};
         }
 
-        /* ========== SCREEN MANAGEMENT ========== */
         function showScreen(id){
             var screens=document.querySelectorAll('.screen');
             for(var i=0;i<screens.length;i++) screens[i].classList.remove('active');
             document.getElementById(id).classList.add('active');
         }
 
-        /* ========== STATE ========== */
         var gameMode=null, currentIdx=0, score=0, p1Wins=0, p2Wins=0, roundLocked=false;
         var g1=null, g2=null;
 
-        /* ========== SINGLE PLAYER ========== */
         function startSingle(){
             gameMode='single'; currentIdx=0; score=0;
             document.getElementById('spScore').textContent='0';
@@ -871,7 +845,6 @@
             document.getElementById('spQ').textContent=(idx+1)+'/'+TOTAL;
             setTypeTag(document.getElementById('spType'), SENTENCES[idx].type);
             g1.load(SENTENCES[idx].text.split(' '));
-            // Enable check button
             document.getElementById('spCheck').disabled=false;
         }
 
@@ -906,7 +879,6 @@
             if(pct>=60) burstConfetti();
         }
 
-        /* ========== TWO PLAYER ========== */
         function startTwo(){
             gameMode='two'; currentIdx=0; p1Wins=0; p2Wins=0; roundLocked=false;
             document.getElementById('tpP1S').textContent='0';
@@ -939,7 +911,6 @@
             setTypeTag(document.getElementById('p2Type'), SENTENCES[idx].type);
             var words=SENTENCES[idx].text.split(' ');
             g1.load(words); g2.load(words);
-            // Enable check buttons
             document.getElementById('p1Check').disabled=false;
             document.getElementById('p2Check').disabled=false;
         }
@@ -979,14 +950,12 @@
             showScreen('championScreen'); burstConfetti();
         }
 
-        /* ========== BACK TO MENU ========== */
         function backToMenu(){
             if(g1){g1.destroy(); g1=null;}
             if(g2){g2.destroy(); g2=null;}
             roundLocked=false; showScreen('modeSelect');
         }
 
-        /* ========== WIRE BUTTONS ========== */
         document.getElementById('btnSolo').addEventListener('click', startSingle);
         document.getElementById('btnRace').addEventListener('click', startTwo);
         document.getElementById('spMenu').addEventListener('click', backToMenu);
@@ -1005,7 +974,6 @@
         document.getElementById('champAgain').addEventListener('click', startTwo);
         document.getElementById('champMenu').addEventListener('click', backToMenu);
 
-        /* ========== KEYBOARD ========== */
         document.addEventListener('keydown', function(e){
             if(e.key==='Enter'){if(gameMode==='single') spCheck();}
             if(e.key==='r'||e.key==='R'){if(gameMode==='single') spReset(); else tpReset();}

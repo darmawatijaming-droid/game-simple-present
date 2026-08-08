@@ -105,7 +105,7 @@
         .word-card.placed:hover .return-x{display:flex}
         .hint-text{text-align:center;font-size:12px;color:var(--muted);margin:4px 0 8px;font-weight:600}
         .hint-text i{margin-right:4px}
-        .sentence-area{min-height:74px;background:repeating-linear-gradient(transparent,transparent 35px,rgba(224,200,128,.18) 35px,rgba(224,200,128,.18) 36px),linear-gradient(180deg,#FFFAE6,#FFF3CC);border:3px dashed var(--sent-bd);border-radius:20px;padding:18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:inset 0 3px 12px rgba(0,0,0,.04);transition:border-color .25s,background .25s,box-shadow .25s;position:relative}
+        .sentence-area{min-height:74px;background:repeating-linear-gradient(transparent,transparent 35px,rgba(224,200,128,.18) 35px,rgba(224,200,128,.18) 36px),linear-gradient(180deg,#FFFAE6,#FFF3CC);border:3px dashed var(--sent-bd);border-radius:20px;padding:18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-start;margin-bottom:16px;box-shadow:inset 0 3px 12px rgba(0,0,0,.04);transition:border-color .25s,background .25s,box-shadow .25s;position:relative}
         .sentence-area.drag-hover{border-color:var(--accent2);background:repeating-linear-gradient(transparent,transparent 35px,rgba(78,205,196,.1) 35px,rgba(78,205,196,.1) 36px),linear-gradient(180deg,#E6FFF9,#D4FFF0);box-shadow:inset 0 3px 12px rgba(78,205,196,.1),0 0 25px rgba(78,205,196,.12)}
         .sentence-area.result-correct{border-color:var(--success)!important;border-style:solid!important;box-shadow:0 0 25px rgba(107,203,119,.25),inset 0 3px 12px rgba(107,203,119,.08)!important}
         .sentence-area.result-wrong{animation:ashake .5s ease;border-color:var(--error)!important}
@@ -141,7 +141,7 @@
         .vs-divider{display:flex;align-items:center;justify-content:center;padding:0 10px;font-family:'Fredoka One',cursive;font-size:26px;color:var(--muted);min-width:50px}
         .vs-divider span{background:var(--bg);border:3px solid var(--border);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px}
         .tp-bank{height:175px}
-        .tp-sentence{min-height:62px;padding:14px;gap:8px;margin-bottom:10px}
+        .tp-sentence{min-height:62px;padding:14px;gap:8px;margin-bottom:10px;display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;}
         .player-check-wrap{text-align:center;margin-bottom:6px}
         .player-feedback{text-align:center;min-height:40px}
         .lock-overlay{display:none;position:absolute;inset:0;background:rgba(255,255,255,.65);border-radius:20px;z-index:50;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:16px;color:var(--muted);gap:8px;pointer-events:none;flex-direction:column}
@@ -170,6 +170,27 @@
         .champ-vs{font-family:'Fredoka One',cursive;font-size:22px;color:var(--muted)}
         .champ-card.p1-card .champ-num{color:var(--p1dark)}
         .champ-card.p2-card .champ-num{color:var(--p2dark)}
+        /* Tombol Back ke Dashboard di dalam game */
+        .back-dashboard-btn {
+            background: linear-gradient(135deg, #AB47BC, #8E24AA);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all .2s;
+            box-shadow: 0 4px 14px rgba(0,0,0,.1);
+        }
+        .back-dashboard-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(156,39,176,.3);
+        }
         @media(max-width:900px){
             .players-grid{grid-template-columns:1fr;gap:14px}
             .vs-divider{padding:4px 0}
@@ -302,6 +323,7 @@
                 <div class="title"><i class="fas fa-star star-icon"></i> Arrange the Sentence <i class="fas fa-star star-icon"></i></div>
                 <div class="header-stats">
                     <button class="menu-btn" id="spMenu" title="Menu" aria-label="Back to menu"><i class="fas fa-home"></i></button>
+                    <button class="back-dashboard-btn" id="spBackDash"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
                     <div class="stat-badge"><i class="fas fa-book-open"></i><span id="spQ">1/40</span></div>
                     <div class="stat-badge"><i class="fas fa-trophy"></i>Score: <span class="score-value" id="spScore">0</span></div>
                 </div>
@@ -337,6 +359,7 @@
                 <div class="title"><i class="fas fa-star star-icon"></i> Sentence Race <i class="fas fa-star star-icon"></i></div>
                 <div class="header-stats">
                     <button class="menu-btn" id="tpMenu" title="Menu" aria-label="Back to menu"><i class="fas fa-home"></i></button>
+                    <button class="back-dashboard-btn" id="tpBackDash"><i class="fas fa-arrow-left"></i> Back to Dashboard</button>
                     <div class="stat-badge"><i class="fas fa-book-open"></i><span id="tpRound">1/40</span></div>
                     <div class="stat-badge p1-b"><i class="fas fa-trophy"></i>P1: <span class="score-value" id="tpP1S">0</span></div>
                     <div class="stat-badge p2-b"><i class="fas fa-trophy"></i>P2: <span class="score-value" id="tpP2S">0</span></div>
@@ -742,6 +765,7 @@
                     ph.innerHTML='<i class="fas fa-pen-fancy"></i> Drop words here...'; sentEl.appendChild(ph);
                 } else if(has){var ph=sentEl.querySelector('.sentence-placeholder'); if(ph) ph.remove();}
             }
+
             function refreshBE(){emptyEl.classList.toggle('visible', floaters.length===0);}
 
             function startLoop(){
@@ -966,12 +990,14 @@
         document.getElementById('btnSolo').addEventListener('click', startSingle);
         document.getElementById('btnRace').addEventListener('click', startTwo);
         document.getElementById('spMenu').addEventListener('click', backToMenu);
+        document.getElementById('spBackDash').addEventListener('click', backToMenu);
         document.getElementById('spCheck').addEventListener('click', spCheck);
         document.getElementById('spReset').addEventListener('click', spReset);
         document.getElementById('spNext').addEventListener('click', spNext);
         document.getElementById('spAgain').addEventListener('click', startSingle);
         document.getElementById('spEndMenu').addEventListener('click', backToMenu);
         document.getElementById('tpMenu').addEventListener('click', backToMenu);
+        document.getElementById('tpBackDash').addEventListener('click', backToMenu);
         document.getElementById('p1Check').addEventListener('click', function(){if(g1) g1.check(SENTENCES[currentIdx].text);});
         document.getElementById('p2Check').addEventListener('click', function(){if(g2) g2.check(SENTENCES[currentIdx].text);});
         document.getElementById('tpReset').addEventListener('click', tpReset);
